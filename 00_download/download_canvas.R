@@ -145,6 +145,47 @@ dfGroup_categories <- dfCourses %>%
 dfGroup_categories %>%
   tabyl(course_id)
 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+dfAssignment_groups <- dfCourses %>%
+  pull(course.id) %>%
+  map_dfr(~ vvcanvas::get_assignment_groups(canvas, .x))
+
+## check course_id
+dfAssignment_groups %>%
+  tabyl(course_id)
+
+
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+dfUsers <- dfCourses %>%
+  pull(course.id) %>%
+  map_dfr(~ vvcanvas::get_course_users(canvas, .x))
+
+## check course_id
+dfUsers %>%
+  tabyl(course_id)
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+dfMedia <- dfCourses %>%
+  pull(course.id) %>%
+  map_dfr(~ vvcanvas::get_course_media_objects(canvas, .x))
+
+## check course_id
+dfMedia %>%
+  tabyl(course_id)
+
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####
