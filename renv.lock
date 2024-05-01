@@ -55,6 +55,11 @@
       "RemoteRepo": "vvcanvas",
       "RemoteRef": "main",
       "RemoteSha": "9ce0723d35afddf11e03033b523d2321ac700db3"
+    },
+    "vvconverter": {
+      "Package": "vvconverter",
+      "Version": "0.5.9",
+      "Source": "Repository"
     }
   }
 }
