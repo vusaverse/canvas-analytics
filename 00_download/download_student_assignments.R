@@ -46,6 +46,7 @@ plan(multisession, workers = parallel::detectCores() - 1)
 
 dfStudent_assignments <- dfStudents %>%
   select(course_id, id) %>%
+  distinct() %>%
   future_pmap_dfr(function(course_id, id) {
     tryCatch(
       {
