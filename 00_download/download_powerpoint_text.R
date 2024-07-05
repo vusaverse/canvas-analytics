@@ -13,7 +13,8 @@ dfFiles <- readrds_csv(output = "20. Test/CAN_Files.rds")
 df <- dfFiles %>%
   dplyr::filter(mime_class == "ppt")
 
-
+install.packages("officer")
+library(officer)
 
 
 extract_ppt_content <- function(url) {
@@ -43,11 +44,15 @@ extract_ppt_content <- function(url) {
   })
 }
 
+library(parallel)
+library(furrr)
+
+# Set up parallel processing
+plan(multisession, workers = parallel::detectCores() - 1)
 
 url_table <- df %>%
   dplyr::filter(grepl(".pptx$", filename)) %>%
-  mutate(extracted_text = map_chr(url, extract_ppt_content))
-
+  mutate(extracted_text = future_map_chr(url, extract_ppt_content, .progress = TRUE))
 
 vusa::write_file(url_table, "CAN_Powerpoint_text", destination = "20. Test/", save_rds = TRUE)
 
