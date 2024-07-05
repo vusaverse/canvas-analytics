@@ -33,19 +33,3 @@ dfMedia <- dfCourses %>%
 
 
 vusa::write_file(dfMedia, "CAN_Media", destination = "20. Test/", save_rds = TRUE)
-
-#
-# sample_course <- dfCourses %>% pull(course.id) %>% sample(1)
-#
-#
-# dfTest <- vvcanvas::get_course_media_objects(canvas, sample_course) %>%
-#   unnest(media_sources)
-# #
-# #
-# dfTest_mutated <- dfTest %>%
-#   mutate(
-#     size_bits = as.numeric(size) * 1024 * 8,  # Convert KB to bits
-#     bitrate_bps = as.numeric(bitrate),        # Assuming it's already in bps
-#     duration_seconds = size_bits / bitrate_bps,
-#     duration_minutes = duration_seconds / 60
-#   )
