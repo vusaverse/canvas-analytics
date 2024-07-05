@@ -45,6 +45,7 @@ library(furrr)
 plan(multisession, workers = parallel::detectCores() - 1)
 
 dfStudent_assignments <- dfStudents %>%
+  dplyr::filter(name != "Test student") %>%
   select(course_id, id) %>%
   distinct() %>%
   future_pmap_dfr(function(course_id, id) {
