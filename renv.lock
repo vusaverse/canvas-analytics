@@ -9,6 +9,16 @@
     ]
   },
   "Packages": {
+    "furrr": {
+      "Package": "furrr",
+      "Version": "0.3.1",
+      "Source": "Repository"
+    },
+    "officer": {
+      "Package": "officer",
+      "Version": "0.6.6",
+      "Source": "Repository"
+    },
     "renv": {
       "Package": "renv",
       "Version": "1.0.1",
@@ -43,7 +53,7 @@
       "RemoteUsername": "vusaverse",
       "RemoteRepo": "vusa",
       "RemoteRef": "main",
-      "RemoteSha": "53eb3af0c2ad7bd387d3c7734dbfa01a5c5b12cb"
+      "RemoteSha": "b291d8adaf1a1d4a87b37590a6a4b343901d59dd"
     },
     "vvcanvas": {
       "Package": "vvcanvas",
@@ -54,7 +64,7 @@
       "RemoteUsername": "vusaverse",
       "RemoteRepo": "vvcanvas",
       "RemoteRef": "main",
-      "RemoteSha": "9ce0723d35afddf11e03033b523d2321ac700db3"
+      "RemoteSha": "e930698704f914e67a0e9360c450e6f033d2cbc8"
     },
     "vvconverter": {
       "Package": "vvconverter",
