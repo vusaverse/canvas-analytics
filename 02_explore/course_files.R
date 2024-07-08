@@ -31,4 +31,15 @@ dfFiles_summarized <- dfFiles %>%
     "course_id" = "id"
   ))
 
-
+dfFiles_summarized <- dfFiles %>%
+  distinct() %>%
+  count(course_id,  mime_class) %>%
+  pivot_wider(
+    names_from = mime_class,
+    values_from = n,
+    values_fill = 0
+  ) %>%
+  mutate(total = rowSums(select(., -course_id))) %>%
+  left_join(dfCourse_to_join, by = c(
+    "course_id" = "id"
+  ))
