@@ -18,6 +18,13 @@ dfCourse_to_join <- dfCourse_details %>%
   select(id, name, sis_course_id, INS_Inschrijvingsjaar)
 
 
+## handle double entries and non-active users
+dfEnrolments <- dfEnrolments %>%
+  distinct(course_id, user_id, .keep_all=TRUE) %>%
+  dplyr::filter(enrollment_state == "active")
+
+
+
 dfEnrolments_summarized_role <- dfEnrolments %>%
   distinct() %>%
   count(course_id, role) %>%
