@@ -72,8 +72,36 @@ parse_link_header <- function(header) {
 dfCourses <- readrds_csv(output = "20. Test/CAN_Index.rds")
 cat("read in")
 
-library(parallel)
+# # library(parallel)
+# # library(furrr)
+#
+# # Set up parallel processing
+# # plan(multisession, workers = parallel::detectCores() - 1)
+# #
+# # dfFiles <- dfCourses %>%
+# #   pull(course.id) %>%
+# #   future_map_dfr(~ {
+# #     tryCatch(
+# #       {
+# #         # vvcanvas::get_course_files(canvas, .x)
+# #         get_all_course_files(canvas, .x)
+# #       },
+# #       error = function(e) {
+# #         tibble(course_id = .x, error = as.character(e))
+# #       }
+# #     )
+# #   }, .progress = TRUE)
+# #
+# #
+# # vusa::write_file(dfFiles, "CAN_Files", destination = "20. Test/", save_rds = TRUE)
+# #
+#
+#
+#
+library(dplyr)
+library(purrr)
 library(furrr)
+library(parallel)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
@@ -83,8 +111,12 @@ dfFiles <- dfCourses %>%
   future_map_dfr(~ {
     tryCatch(
       {
-        # vvcanvas::get_course_files(canvas, .x)
-        get_all_course_files(canvas, .x)
+        files <- get_all_course_files(canvas, .x)
+        if (is.data.frame(files) && nrow(files) > 0) {
+          files
+        } else {
+          tibble(course_id = .x, error = "No files or empty result")
+        }
       },
       error = function(e) {
         tibble(course_id = .x, error = as.character(e))
@@ -94,4 +126,3 @@ dfFiles <- dfCourses %>%
 
 
 vusa::write_file(dfFiles, "CAN_Files", destination = "20. Test/", save_rds = TRUE)
-
