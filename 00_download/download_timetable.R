@@ -5,7 +5,7 @@
 ## Contact: vu-analytics@vu.nl
 ##
 ##' *INFO*:
-## 1) ___
+## 1) Currently, not authorized to use this endpoint
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #' Get Course Timetable
@@ -34,9 +34,9 @@ get_course_timetable <- function(canvas, course_id) {
   response <- httr::GET(url, httr::add_headers(Authorization = paste("Bearer", canvas$api_key)))
 
   # Check the response status code
-  if (httr::status_code(response) != 200) {
-    stop("Failed to retrieve course timetable. Please check your authentication and API endpoint.")
-  }
+  # if (httr::status_code(response) != 200) {
+  #   stop("Failed to retrieve course timetable. Please check your authentication and API endpoint.")
+  # }
 
   # Parse the response as JSON
   timetable <- httr::content(response, "text", encoding = "UTF-8") %>%
@@ -48,28 +48,28 @@ get_course_timetable <- function(canvas, course_id) {
 }
 
 
-
-dfCourses <- readrds_csv(output = "20. Test/CAN_Index.rds")
-cat("read in")
-
-library(parallel)
-library(furrr)
-
-# Set up parallel processing
-plan(multisession, workers = parallel::detectCores() - 1)
-
-dfTimetable <- dfCourses %>%
-  pull(course.id) %>%
-  future_map_dfr(~ {
-    tryCatch(
-      {
-        get_course_timetable(canvas, .x)
-      },
-      error = function(e) {
-        tibble(course_id = .x, error = as.character(e))
-      }
-    )
-  }, .progress = TRUE)
-
-
-vusa::write_file(dfTimetable, "CAN_Timetable", destination = "20. Test/", save_rds = TRUE)
+#
+# dfCourses <- readrds_csv(output = "20. Test/CAN_Index.rds")
+# cat("read in")
+#
+# library(parallel)
+# library(furrr)
+#
+# # Set up parallel processing
+# plan(multisession, workers = parallel::detectCores() - 1)
+#
+# dfTimetable <- dfCourses %>%
+#   pull(course.id) %>%
+#   future_map_dfr(~ {
+#     tryCatch(
+#       {
+#         get_course_timetable(canvas, .x)
+#       },
+#       error = function(e) {
+#         tibble(course_id = .x, error = as.character(e))
+#       }
+#     )
+#   }, .progress = TRUE)
+#
+#
+# vusa::write_file(dfTimetable, "CAN_Timetable", destination = "20. Test/", save_rds = TRUE)
