@@ -51,7 +51,20 @@ dfRooster_2019 %>% glimpse
 dfRooster_2019 %>%
   group_by(academic_year, ROO_Modulecode)
 
+dfRooster_2019_mapped <- dfRooster_2019 %>%
+  mapping_translate(ROO_Type_activiteit, ROO_Type_activiteit2, "Mapping_KeK_onderwijsvormen.csv")
 
+
+## translate to general activitiy names
+dfRooster_2019_mapped <-
+  mapping_translate(dfRooster_2019,
+                    "ROO_Type_activiteit",
+                    "ROO_Type_activiteit2",
+                    mapping_table_name = "Mapping_KeK_onderwijsvormen.csv",
+                    KeepOriginal = FALSE
+  )
+
+dfRooster_2019_mapped %>% tabyl(ROO_Type_activiteit2)
 
 dfRooster_summarizes <- dfRooster_2019 %>%
   distinct() %>%
