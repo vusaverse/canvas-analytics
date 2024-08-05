@@ -12,31 +12,18 @@
 ## Get current branch
 Sys.setenv("BRANCH" = system("git branch --show-current", intern = TRUE))
 
-## Latest vvcanvas development version
-renv::install("vusaverse/vvcanvas", rebuild = TRUE, prompt = FALSE)
-renv::record("vusaverse/vvcanvas")
-
-## Latest vusa development version
-renv::install("vusaverse/vusa", rebuild = TRUE, prompt = FALSE)
-renv::record("vusaverse/vusa")
-
 ## Restore packages from renv
 renv::restore(prompt = FALSE)
 
 source("99_setup/load_packages.R")
+source("99_setup/load_systemvariables.R")
 
 ##'* INFO*
 ##' Authenticate with the Canvas LMS API
 ##' Assumes that the Canvas API token is stored in the environment variable CANVAS_API_TOKEN
 ##' Assumes that the Canvas API URL is stored in the environment variable CANVAS_BASE_URL
 ##' https://vusaverse.github.io/vvcanvas/reference/canvas_authenticate.html
-
-
 canvas <- vvcanvas::canvas_authenticate()
-
-
-
-
 
 ##' *INFO* clear_global_proj
 object_names <- ls(envir = .GlobalEnv)
