@@ -10,11 +10,11 @@
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Load necessary libraries
-library(officer)
+#library(officer)
 library(pdftools)
 library(furrr)
-library(dplyr)
-library(purrr)
+#library(dplyr)
+#library(purrr)
 
 
 # Function to extract content from PDF files

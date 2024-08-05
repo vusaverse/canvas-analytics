@@ -52,3 +52,5 @@ dfEnrolments_summarized_type <- dfEnrolments %>%
     "course_id" = "id"
   ))
 
+
+write_file(dfEnrolments_summarized_type, Name_to_save = "KeK_cursus_enrolments", save_csv = TRUE, destination = "20. Test/")
