@@ -1,6 +1,6 @@
 # Canvas LMS Data Pipeline
 
-This R repository provides a data pipeline for accessing and processing data from the Canvas LMS (Learning Management System) using the `vvcanvas` R package. The `vvcanvas` package is maintained by the same organization as this repository and provides a convenient interface to the Canvas LMS API.
+This R repository provides a data pipeline for accessing and processing data from the Canvas LMS (Learning Management System) using the [vvcanvas](https://github.com/vusaverse/vvcanvas)  R package. The `vvcanvas` package is maintained by the same organization as this repository and provides a convenient interface to the Canvas LMS API.
 
 ## Getting Started
 
