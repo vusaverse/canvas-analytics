@@ -89,5 +89,11 @@ dfAssignments <- dfCourses %>%
   }, .progress = TRUE)
 
 
-vusa::write_file(dfAssignments, "CAN_Assignments", destination = "20. Test/", save_rds = TRUE)
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+write_file_proj(dfAssignments, "CAN_Assignments")
+
+clear_script_objects()
 

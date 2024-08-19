@@ -31,6 +31,12 @@ dfCourse_details <- dfCourses %>%
     )
   }, .progress = TRUE)
 
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-vusa::write_file(dfCourse_details, "CAN_Course_details", destination = "20. Test/", save_rds = TRUE)
+write_file_proj(dfCourse_details, "CAN_Course_details")
+
+clear_script_objects()
+
 

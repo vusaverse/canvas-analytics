@@ -9,8 +9,9 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-dfStudents <- readrds_csv(output = "20. Test/CAN_Students.rds")
-dfCourse_details <- readrds_csv(output = "20. Test/CAN_Course_details.rds")
+dfStudents <- read_file_proj("CAN_Students")
+dfCourse_details <- read_file_proj("CAN_Course_details")
+
 
 dfCourse_to_join <- dfCourse_details %>%
   distinct() %>%

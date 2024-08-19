@@ -12,6 +12,6 @@
 dfDiscussions <- readrds_csv(output = "20. Test/CAN_All_courses_discussions.rds")
 
 
-dfDiscussions %>% select(course.id, course.name, num_discussion) %>%
-  mutate(has_discussion = num_discussion > 0) %>%
-  view()
+# dfDiscussions %>% select(course.id, course.name, num_discussion) %>%
+#   mutate(has_discussion = num_discussion > 0) %>%
+#   view()

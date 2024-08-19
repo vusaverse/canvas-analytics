@@ -32,5 +32,12 @@ dfDiscussions <- dfCourses %>%
   }, .progress = TRUE)
 
 
-vusa::write_file(dfDiscussions, "CAN_Discussions", destination = "20. Test/", save_rds = TRUE)
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+write_file_proj(dfDiscussions, "CAN_Discussions")
+
+clear_script_objects()
 

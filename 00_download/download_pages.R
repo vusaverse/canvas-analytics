@@ -32,4 +32,10 @@ dfPages <- dfCourses %>%
   }, .progress = TRUE)
 
 
-vusa::write_file(dfPages, "CAN_Pages", destination = "20. Test/", save_rds = TRUE)
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+write_file_proj(dfPages, "CAN_Pages")
+
+clear_script_objects()

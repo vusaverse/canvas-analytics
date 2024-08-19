@@ -32,5 +32,11 @@ dfModules <- dfCourses %>%
   }, .progress = TRUE)
 
 
-vusa::write_file(dfModules, "CAN_Modules", destination = "20. Test/", save_rds = TRUE)
 
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+write_file_proj(dfModules, "CAN_Modules")
+
+clear_script_objects()

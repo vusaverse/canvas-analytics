@@ -56,8 +56,14 @@ dfCourse_participation <- dfCourses %>%
     )
   }, .progress = TRUE)
 
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-vusa::write_file(dfCourse_participation, "CAN_Course_participation", destination = "20. Test/", save_rds = TRUE)
+write_file_proj(dfCourse_participation, "CAN_Course_participation")
+
+clear_script_objects()
+
 
 cat("finished, now student summaries")
 source("00_download/download_course_student_summaries.R")

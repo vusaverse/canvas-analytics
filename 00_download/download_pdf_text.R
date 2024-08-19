@@ -61,6 +61,6 @@ url_table <- df %>%
 ## WRITE & CLEAR ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-vusa::write_file(url_table, "CAN_PDF_text", destination = "20. Test/", save_rds = TRUE)
+write_file_proj(url_table, "CAN_PDF_text")
 
 clear_script_objects()

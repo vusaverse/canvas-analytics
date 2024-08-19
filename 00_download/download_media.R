@@ -32,4 +32,10 @@ dfMedia <- dfCourses %>%
   }, .progress = TRUE)
 
 
-vusa::write_file(dfMedia, "CAN_Media", destination = "20. Test/", save_rds = TRUE)
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+write_file_proj(dfMedia, "CAN_Media")
+
+clear_script_objects()

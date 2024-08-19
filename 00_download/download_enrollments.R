@@ -90,5 +90,11 @@ dfEnrolments <- dfCourses %>%
   }, .progress = TRUE)
 
 
-vusa::write_file(dfEnrolments, "CAN_Enrolments", destination = "20. Test/", save_rds = TRUE)
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+write_file_proj(dfEnrolments, "CAN_Enrolments")
+
+clear_script_objects()
 

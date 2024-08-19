@@ -54,5 +54,12 @@ url_table <- df %>%
   dplyr::filter(grepl(".pptx$", filename)) %>%
   mutate(extracted_text = future_map_chr(url, extract_ppt_content, .progress = TRUE))
 
-vusa::write_file(url_table, "CAN_Powerpoint_text", destination = "20. Test/", save_rds = TRUE)
 
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+write_file_proj(url_table, "CAN_Powerpoint_text")
+
+clear_script_objects()
