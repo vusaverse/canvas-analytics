@@ -15,7 +15,13 @@ set_all_envs <- function(var.name, var.value) {
 }
 
 ## Lees in systeemvariabelen excel bestand
-to_set <- readxl::read_xlsx("Z:/Datasets/Documentatie/Project/renviron_azure_test.xlsx")
+to_set <- readxl::read_xlsx("G:/DSZ/SA2016/Datasets/Documentatie/Project/renviron.xlsx")
 
 ## zet variabelen in R system variables
 pmap(list(to_set$variable, to_set$value), set_all_envs)
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## WRITE & CLEAR ####
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+vusa::clear_script_objects()

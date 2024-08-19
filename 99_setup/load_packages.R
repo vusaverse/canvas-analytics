@@ -20,6 +20,8 @@ basic_packages <- c(
   "tidyr",          # Used to clean data in the tidyverse environment
   "utils",          # Used for utility functions
   "styler",         # Used for improving the style of script
+  "dplyr",         # Used for the dplyr environment
+  "readr",          # Used to read in data
   "vusa",           # Mainly to always have the addins
   "dplyr"           # Used for the dplyr environment
 )
@@ -27,9 +29,9 @@ basic_packages <- c(
 # Load the packages into the library
 suppressMessages(purrr::walk(basic_packages, ~library(.x, character.only = TRUE, warn.conflicts = FALSE)))
 
-if (interactive()) {
-  library(tidylog)  # Used to log messages in the console in interactive mode
-}
+# if (interactive()) {
+#   library(tidylog)  # Used to log messages in the console in interactive mode
+# }
 
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
