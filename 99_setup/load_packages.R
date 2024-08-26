@@ -23,7 +23,8 @@ basic_packages <- c(
   "dplyr",         # Used for the dplyr environment
   "readr",          # Used to read in data
   "vusa",           # Mainly to always have the addins
-  "dplyr"           # Used for the dplyr environment
+  "dplyr",           # Used for the dplyr environment
+  "officer"
 )
 
 # Load the packages into the library
