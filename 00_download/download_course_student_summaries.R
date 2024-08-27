@@ -8,6 +8,39 @@
 ## 1) ___
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+dfCourses <- read_file_proj("CAN_Index",
+                            dir = "1. Ingelezen data/",
+                            add_branch = TRUE,
+                            base_dir = Sys.getenv("OUTPUT_DIR"),
+                            extension = "rds")
+
+tryCatch({
+  # Read the previously processed data
+  dfCourse_student_summaries_filled <- read_file_proj("CAN_Course_student_summaries",
+                                   dir = "1. Ingelezen data/",
+                                   add_branch = TRUE,
+                                   base_dir = Sys.getenv("OUTPUT_DIR"),
+                                   extension = "rds")
+
+  df <- dfCourses %>%
+    dplyr::filter(!course.id %in% dfCourse_student_summaries_filled$course_id)
+
+  cat("Number of courses to process: ", nrow(df), "\n")
+
+
+}, error = function(e) {
+  # If read_file_proj throws an error, process all files
+  df <- dfCourses
+
+  cat(paste0("Processing all courses.\n"))
+  cat("Number of courses to process: ", nrow(df), "\n")
+
+})
+
+
+
+
+
 get_student_summaries <- function(canvas, course_id, per_page = 100) {
   # Construct the API endpoint URL
   url <- paste0(canvas$base_url, "/api/v1/courses/", course_id, "/analytics/student_summaries?per_page=", per_page)
@@ -32,9 +65,6 @@ get_student_summaries <- function(canvas, course_id, per_page = 100) {
 }
 
 
-dfCourses <- readrds_csv(output = "20. Test/CAN_Index.rds")
-cat("read in")
-
 library(parallel)
 library(furrr)
 
@@ -43,7 +73,7 @@ plan(multisession, workers = parallel::detectCores() - 1)
 
 
 
-dfCourse_student_summaries <- dfCourses %>%
+dfCourse_student_summaries <- df %>%
   pull(course.id) %>%
   future_map_dfr(~ {
     tryCatch(
@@ -56,6 +86,11 @@ dfCourse_student_summaries <- dfCourses %>%
     )
   }, .progress = TRUE)
 
+
+if (exists("dfCourse_student_summaries_filled")) {
+  dfCourse_student_summaries <- bind_rows(dfCourse_student_summaries, dfCourse_student_summaries_filled) %>%
+    distinct()
+}
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

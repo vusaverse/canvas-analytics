@@ -16,7 +16,7 @@ library(dplyr)
 library(purrr)
 
 # Set maximum file size (in bytes)
-MAX_FILE_SIZE <- 10 * 1024 * 1024  # 50 MB
+MAX_FILE_SIZE <- 0.10 * 1024 * 1024  # 0.1 MB
 
 # Function to extract content from PDF files
 extract_pdf_content <- function(url) {

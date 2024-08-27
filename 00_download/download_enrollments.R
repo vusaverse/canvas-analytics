@@ -9,6 +9,37 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+dfCourses <- read_file_proj("CAN_Index",
+                            dir = "1. Ingelezen data/",
+                            add_branch = TRUE,
+                            base_dir = Sys.getenv("OUTPUT_DIR"),
+                            extension = "rds")
+
+tryCatch({
+  # Read the previously processed data
+  dfEnrolments_filled <- read_file_proj("CAN_Enrolments",
+                                           dir = "1. Ingelezen data/",
+                                           add_branch = TRUE,
+                                           base_dir = Sys.getenv("OUTPUT_DIR"),
+                                           extension = "rds")
+
+  df <- dfCourses %>%
+    dplyr::filter(!course.id %in% dfEnrolments_filled$course_id)
+
+  cat("Number of courses to process: ", nrow(df), "\n")
+
+
+}, error = function(e) {
+  # If read_file_proj throws an error, process all files
+  df <- dfCourses
+
+  cat(paste0("Processing all courses.\n"))
+  cat("Number of courses to process: ", nrow(df), "\n")
+
+})
+
+
+
 get_all_enrollments <- function(canvas, course_id, per_page = 100) {
   # Initialize an empty list to store all enrollments
   all_enrollments <- list()
@@ -66,16 +97,11 @@ parse_link_header <- function(header) {
   return(result)
 }
 
-dfCourses <- readrds_csv(output = "20. Test/CAN_Index.rds")
-cat("read in")
-
-library(parallel)
-library(furrr)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
-dfEnrolments <- dfCourses %>%
+dfEnrolments <- df %>%
   pull(course.id) %>%
   future_map_dfr(~ {
     tryCatch(
@@ -89,6 +115,11 @@ dfEnrolments <- dfCourses %>%
     )
   }, .progress = TRUE)
 
+
+
+if (exists("dfEnrolments_filled")) {
+  dfEnrolments <- bind_rows(dfEnrolments, dfEnrolments_filled)
+}
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

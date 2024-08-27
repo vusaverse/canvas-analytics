@@ -9,6 +9,36 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+dfCourses <- read_file_proj("CAN_Index",
+                            dir = "1. Ingelezen data/",
+                            add_branch = TRUE,
+                            base_dir = Sys.getenv("OUTPUT_DIR"),
+                            extension = "rds")
+
+tryCatch({
+  # Read the previously processed data
+  dfFiles_filled <- read_file_proj("CAN_Files",
+                                   dir = "1. Ingelezen data/",
+                                   add_branch = TRUE,
+                                   base_dir = Sys.getenv("OUTPUT_DIR"),
+                                   extension = "rds")
+
+  df <- dfCourses %>%
+    dplyr::filter(!course.id %in% dfFiles_filled$course_id)
+
+  cat("Number of courses to process: ", nrow(df), "\n")
+
+
+}, error = function(e) {
+  # If read_file_proj throws an error, process all files
+  df <- dfCourses
+
+  cat(paste0("Processing all courses.\n"))
+  cat("Number of courses to process: ", nrow(df), "\n")
+
+})
+
 get_all_course_files <- function(canvas, course_id, per_page = 100) {
   # Initialize an empty list to store all files
   all_files <- list()
@@ -69,35 +99,8 @@ parse_link_header <- function(header) {
   return(result)
 }
 
-dfCourses <- readrds_csv(output = "20. Test/CAN_Index.rds")
-cat("read in")
 
-# # library(parallel)
-# # library(furrr)
-#
-# # Set up parallel processing
-# # plan(multisession, workers = parallel::detectCores() - 1)
-# #
-# # dfFiles <- dfCourses %>%
-# #   pull(course.id) %>%
-# #   future_map_dfr(~ {
-# #     tryCatch(
-# #       {
-# #         # vvcanvas::get_course_files(canvas, .x)
-# #         get_all_course_files(canvas, .x)
-# #       },
-# #       error = function(e) {
-# #         tibble(course_id = .x, error = as.character(e))
-# #       }
-# #     )
-# #   }, .progress = TRUE)
-# #
-# #
-# # vusa::write_file(dfFiles, "CAN_Files", destination = "20. Test/", save_rds = TRUE)
-# #
-#
-#
-#
+
 library(dplyr)
 library(purrr)
 library(furrr)
@@ -106,7 +109,7 @@ library(parallel)
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
-dfFiles <- dfCourses %>%
+dfFiles <- df %>%
   pull(course.id) %>%
   future_map_dfr(~ {
     tryCatch(
@@ -124,6 +127,10 @@ dfFiles <- dfCourses %>%
     )
   }, .progress = TRUE)
 
+
+if (exists("dfFiles_filled")) {
+  dfFiles <- bind_rows(dfFiles, dfFiles_filled)
+}
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####
