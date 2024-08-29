@@ -14,6 +14,7 @@ library(pdftools)
 library(furrr)
 library(dplyr)
 library(purrr)
+library(lubridate)
 
 # Set maximum file size (in bytes)
 MAX_FILE_SIZE <- 0.10 * 1024 * 1024  # 0.1 MB
@@ -77,8 +78,10 @@ tryCatch({
   cat("Processing all PDF files.\n")
 })
 
-# Main processing function
-process_pdf_files <- function(df, batch_size = 50, num_workers = 4) {
+
+
+
+process_pdf_files <- function(df, batch_size = 50, num_workers = 4, timeout = 60) {
   plan(multisession, workers = num_workers)
 
   url_table <- df %>%
@@ -94,17 +97,44 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4) {
     cat("Processing batch", i, "to", batch_end, "\n")
 
     batch <- url_table[i:batch_end, ]
-    batch_result <- batch %>%
-      mutate(extraction_result = future_map(url, safe_extract_pdf_content, .progress = TRUE))
 
-    results[[length(results) + 1]] <- batch_result
+    start_time <- Sys.time()
+
+    tryCatch({
+      batch_result <- batch %>%
+        mutate(extraction_result = future_map(
+          url,
+          safe_extract_pdf_content,
+          .progress = TRUE,
+          .options = furrr_options(seed = TRUE)
+        ))
+
+      results[[length(results) + 1]] <- batch_result
+
+      cat("Batch completed successfully.\n")
+    }, error = function(e) {
+      cat("Error occurred:", conditionMessage(e), "\n")
+      cat("Saving current results and exiting.\n")
+      return(bind_rows(results))
+    })
+
+    end_time <- Sys.time()
+    elapsed <- as.numeric(difftime(end_time, start_time, units = "secs"))
+    cat("Batch processing time:", round(elapsed, 2), "seconds\n\n")
+
+    if (elapsed >= timeout) {
+      cat("Batch processing exceeded timeout. Exiting and returning results.\n")
+      return(bind_rows(results))
+    }
   }
 
   bind_rows(results)
 }
 
 # Process the files
-result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4)
+# result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4)
+
+result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4, timeout = 60)
 
 # Post-process results
 final_table <- result_table %>%
