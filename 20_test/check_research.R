@@ -246,6 +246,9 @@ vusa::write_file(dfQuiz, "ABE_Online_quizzes", destination = "20. Test/", save_r
 source("02_explore/course_announcement.R")
 source("02_explore/course_pages.R")
 source("02_explore/course_ppt_content.R")
+## TODO: read pdf_content also
+source("02_explore/course_pdf_content.R")
+
 
 dfAnnouncements_selected <- dfAnnouncements %>%
   select(course_id, message)
@@ -255,6 +258,10 @@ dfPages_selected <- dfPages %>%
 
 
 dfPPT_selected <- dfPPT %>%
+  select(course_id, extracted_text)
+
+
+dfPDF_selected <- dfPDF %>%
   select(course_id, extracted_text)
 
 
@@ -268,11 +275,16 @@ dfPages_selected <- dfPages_selected %>%
 dfPPT_selected <- dfPPT_selected %>%
   rename(text_content = extracted_text)
 
+dfPDF_selected <- dfPDF_selected %>%
+  rename(text_content = extracted_text)
+
 # Step 2: Bind the rows of the three dataframes
+## TODO: join read and bind PDF data as well
 dfCombined <- bind_rows(
   dfAnnouncements_selected,
   dfPages_selected,
-  dfPPT_selected
+  dfPPT_selected,
+  dfPDF_selected
 )
 
 ##' *INFO* : menti.com bestaat ook!
