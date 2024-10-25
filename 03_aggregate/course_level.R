@@ -68,5 +68,7 @@ dfCourse_information <- dfCourse_information %>%
 ## WRITE & CLEAR ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+write_file_proj(dfCourse_information, "CAN_Course_level")
+
 
 vusa::clear_script_objects()
