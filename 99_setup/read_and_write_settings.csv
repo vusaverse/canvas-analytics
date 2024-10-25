@@ -1,7 +1,7 @@
 script_dir;type;read_data_dir;read_base_data_dir;read_add_branch;write_data_dir;write_base_data_dir;write_add_branch;write_rds;write_csv;write_fst;read_extension;read_message;write_message;notes
 00_download;;Datasets;NETWORK_DIR;FALSE;1. Ingelezen data;OUTPUT_DIR;TRUE;TRUE;FALSE;FALSE;csv;Be aware! In this directory very diverse, raw, data is loaded, so this function might be not be appropriate.;;
 02_explore;;1. Ingelezen data;OUTPUT_DIR;TRUE;2. Geprepareerde data;OUTPUT_DIR;TRUE;TRUE;FALSE;FALSE;rds;;;
-03. Analyseset maken;;2. Geprepareerde data;OUTPUT_DIR;TRUE;3. Analyseset;OUTPUT_DIR;TRUE;TRUE;TRUE;FALSE;rds;;;
+03_aggregate;;1. Ingelezen data;OUTPUT_DIR;TRUE;3. Analyseset;OUTPUT_DIR;TRUE;TRUE;TRUE;FALSE;rds;;;
 04. Analyseren;;3. Analyseset;OUTPUT_DIR;TRUE;4. Analyses;OUTPUT_DIR;TRUE;TRUE;FALSE;FALSE;rds;;;
 05. Rapporten;default;3. Analyseset;OUTPUT_DIR;TRUE;TABLEAU_DATA_DIR;NETWORK_DIR;FALSE;TRUE;TRUE;FALSE;rds;Be aware! This directory has multiple types, the default is used for data assets;Be aware! This directory has multiple types, the default is used for Tableau;
 05. Rapporten;exception;2. Geprepareerde data;OUTPUT_DIR;TRUE;5. Rapportages;OUTPUT_DIR;TRUE;TRUE;TRUE;FALSE;rds;;;
