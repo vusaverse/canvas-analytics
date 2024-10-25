@@ -11,114 +11,57 @@
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-df <- dfCourses %>%
-  select(course.id, course.name, course.start_at, course.created_at, course.updated_at) %>%
-  mutate(
-    course.start_at = vvconverter::academic_year(as.Date(course.start_at)),
-    course.created_at = vvconverter::academic_year(as.Date(course.created_at)),
-    course.updated_at = vvconverter::academic_year(as.Date(course.updated_at))
-  ) %>%
-  left_join(
-    dfStudents %>%
-      group_by(course_id) %>%
-      summarize(unique_students = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfAnnouncements %>%
-      group_by(course_id) %>%
-      summarize(unique_announcements = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfAssignments %>%
-      group_by(course_id) %>%
-      summarize(unique_assignments = n_distinct(id)),                                     ## max 10?
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfAssignment_groups %>%
-      group_by(course_id) %>%
-      summarize(unique_assignment_groups = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfDiscussions %>%
-      group_by(course_id) %>%
-      summarize(unique_discussions = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfEnrollments %>%
-      distinct(course_id, user_id, role) %>%
-      group_by(course_id, role) %>%
-      summarize(n_enrollments = n()) %>%
-      pivot_wider(names_from = role, values_from = n_enrollments, values_fill = 0),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfFiles %>%
-      group_by(course_id) %>%
-      summarize(unique_files = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfFolders %>%
-      group_by(course_id) %>%
-      summarize(unique_folders = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfGroup_categories %>%
-      group_by(course_id) %>%
-      summarize(unique_group_categories = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfGroups %>%
-      group_by(course_id) %>%
-      summarize(unique_groups = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfMedia %>%
-      group_by(course_id) %>%
-      summarize(unique_media_objects = n_distinct(media_id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfModules %>%
-      group_by(course_id) %>%
-      summarize(unique_modules = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfQuizzes %>%
-      group_by(course_id) %>%
-      summarize(unique_quizzes = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfQuizzes %>%
-      distinct(course_id, id, quiz_type) %>%
-      group_by(course_id, quiz_type) %>%
-      summarize(n_quizzes = n()) %>%
-      pivot_wider(names_from = quiz_type, values_from = n_quizzes, values_fill = 0),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfSections %>%
-      group_by(course_id) %>%
-      summarize(unique_sections = n_distinct(id)),
-    by = c("course.id" = "course_id")
-  ) %>%
-  left_join(
-    dfUsers %>%
-      distinct(course_id, id) %>%
-      group_by(course_id) %>%
-      summarize(unique_users = n_distinct(id)),
-    by = c("course.id" = "course_id")
+# dfEnrolments <- read_file_proj("CAN_Enrolments")
+dfCourse_details <- read_file_proj("CAN_Course_details")
+
+dfCourses <- read_file_proj("CAN_Index")
+
+
+dfCourse_information <- dfCourse_details %>%
+  dplyr::left_join(dfCourses, by = c("id" = "course.id"))
+
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+##' *INFO* Enrolments contains both `role` and `type` for users
+##' Add user counts to the course-level analysis set
+dfEnrolments <- read_file_proj("CAN_Enrolments")
+dfStudents <- read_file_proj("CAN_Students")
+
+
+dfStudents_summarized <- dfStudents %>%
+  distinct() %>%
+  group_by(course_id) %>%
+  summarise(
+    count_students = n()
   )
+
+dfEnrolments_summarized_role <- dfEnrolments %>%
+  distinct() %>%
+  count(course_id, role) %>%
+  pivot_wider(
+    names_from = role,
+    values_from = n,
+    values_fill = 0
+  ) %>%
+  mutate(Enrolment_total_role = rowSums(select(., -course_id)))
+
+
+dfEnrolments_summarized_type <- dfEnrolments %>%
+  distinct() %>%
+  count(course_id, type) %>%
+  pivot_wider(
+    names_from = type,
+    values_from = n,
+    values_fill = 0
+  ) %>%
+  mutate(Enrolment_total_type = rowSums(select(., -course_id)))
+
+## Join user counts to the analysis set
+dfCourse_information <- dfCourse_information %>%
+  left_join(dfStudents_summarized, by = c("id" = "course_id")) %>%
+  left_join(dfEnrolments_summarized_role, by = c("id" = "course_id"), suffix = c("", "_role")) %>%
+  left_join(dfEnrolments_summarized_type, by = c("id" = "course_id"), suffix = c("", "_type"))
 
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
