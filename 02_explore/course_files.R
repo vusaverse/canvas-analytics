@@ -5,7 +5,7 @@
 ## Contact: vu-analytics@vu.nl
 ##
 ##' *INFO*:
-## 1) ___
+## 1) hidden issues??
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -20,6 +20,7 @@ dfCourse_to_join <- dfCourse_details %>%
 
 
 dfFiles_summarized <- dfFiles %>%
+  dplyr::filter(hidden == FALSE) %>%
   distinct() %>%
   count(course_id,  `content-type`) %>%
   pivot_wider(
@@ -33,6 +34,7 @@ dfFiles_summarized <- dfFiles %>%
   ))
 
 dfFiles_summarized <- dfFiles %>%
+  dplyr::filter(hidden == FALSE) %>%
   distinct() %>%
   count(course_id,  mime_class) %>%
   pivot_wider(

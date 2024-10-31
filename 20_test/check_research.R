@@ -5,7 +5,10 @@
 ## Contact: vu-analytics@vu.nl
 ##
 ##' *INFO*:
-## 1) ___
+## 1) hidden controleren; DONE? FOUTIEF????
+## 1) quizzes 0 vragen eruit controleren; DONE
+## 1) 2023 verwerken
+## 1) youtube, vimeo, filmpjes korter dan 4 minuten
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 sDir <- paste0(Sys.getenv("RAW_DATA_DIR"), "Canvas-api/DocumentenABE2/")
@@ -396,7 +399,9 @@ source("02_explore/course_media.R")
 
 dfMedia_summarized <- dfMedia_mutated %>%
   group_by(course_id) %>%
-  summarise(count_long_videos = sum(norm_minutes >= 40, na.rm = TRUE)) %>%
+  summarise(count_long_videos = sum(norm_minutes >= 40, na.rm = TRUE),
+            count_short_videos = sum(norm_minutes <= 4, na.rm = TRUE),
+            ) %>%
   arrange(desc(count_long_videos)) %>%
   left_join(dfCourse_to_join, by = c(
     "course_id" = "id"
@@ -409,8 +414,8 @@ dfABE_Uiteindelijk_online <-  dfABE_Uiteindelijk %>%
                                            AcademicYear == 2 ~ 2022,
                                            AcademicYear == 3 ~ 2023,
                                            FALSE ~ TRUE))
-
-
+## uitzoeken youtube, vimeo linkes ook
+## Uitzoeken lage matches
 dfMed <- dfMedia_summarized %>%
   mutate(
     INS_Inschrijvingsjaar = as.integer(str_extract(sis_course_id, "(?<=_)(201[6-9]|202[0-9]|2030)(?=_)")),
@@ -420,8 +425,7 @@ dfMed <- dfMedia_summarized %>%
   left_join(dfABE_Uiteindelijk_online, by = c(
     "COURSE_SIS_ID" = "CourseName",
     "INS_Inschrijvingsjaar" = "INS_Inschrijvingsjaar"
-  )) %>%
-  dplyr::filter(!is.na(Collegesopgenomen))
+  ))
 
 
 vusa::write_file(dfMed, "ABE_Ogenomen_colleges", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
