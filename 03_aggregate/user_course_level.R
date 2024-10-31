@@ -49,9 +49,8 @@ dfCourse_information <- dfCourse_details %>%
 
 
 dfEnrolments_information_final <- dfEnrolments_information_part %>%
-  left_join(dfCourse_information, by = c("course_id" = "id"), suffix = c(".enrolment", ".course"))
-#
-#
+  left_join(dfCourse_information, by = c("course_id" = "id"), suffix = c(".enrolment", ".course")) %>%
+  mutate(across(where(is.list), ~ map_chr(., ~ paste(.x, collapse = ", "))))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

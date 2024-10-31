@@ -11,7 +11,8 @@
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-# dfEnrolments <- read_file_proj("CAN_Enrolments")
+## _________________________________________________________________________________________________
+## Course information
 dfCourse_details <- read_file_proj("CAN_Course_details")
 
 dfCourses <- read_file_proj("CAN_Index")
@@ -23,6 +24,8 @@ dfCourse_information <- dfCourse_details %>%
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+## _________________________________________________________________________________________________
+## Course enrolment information
 ##' *INFO* Enrolments contains both `role` and `type` for users
 ##' Add user counts to the course-level analysis set
 dfEnrolments <- read_file_proj("CAN_Enrolments")
@@ -63,6 +66,61 @@ dfCourse_information <- dfCourse_information %>%
   left_join(dfEnrolments_summarized_role, by = c("id" = "course_id"), suffix = c("", "_role")) %>%
   left_join(dfEnrolments_summarized_type, by = c("id" = "course_id"), suffix = c("", "_type"))
 
+dfCourse_information <- dfCourse_information %>%
+  ##unlist all lists
+  mutate(across(where(is.list), ~ map_chr(., ~ paste(.x, collapse = ", "))))
+
+
+## _______________________________________________________________________________________________
+## Course counts
+
+
+dfAnnouncements <- read_file_proj("CAN_Announcements")
+dfAssignments <- read_file_proj("CAN_Assignments")
+dfMedia <- read_file_proj("CAN_Media")
+dfModules <- read_file_proj("CAN_Modules")
+dfPages <- read_file_proj("CAN_Pages")
+dfQuizzes <- read_file_proj("CAN_Quizzes")
+
+dfAnnouncements_summarized <- dfAnnouncements %>%
+  distinct() %>%
+  count(course_id) %>%
+  rename(Announcement_count = n)
+
+dfAssignments_summarized <- dfAssignments %>%
+  distinct() %>%
+  count(course_id) %>%
+  rename(Assignment_count = n)
+
+dfMedia_summarized <- dfMedia %>%
+  distinct() %>%
+  count(course_id) %>%
+  rename(Media_count = n)
+
+dfModules_summarized <- dfModules %>%
+  distinct() %>%
+  count(course_id) %>%
+  rename(Module_count = n)
+
+dfPages_summarized <- dfPages %>%
+  distinct() %>%
+  count(course_id) %>%
+  rename(Page_count = n)
+
+
+dfQuizzes_summarized <- dfQuizzes %>%
+  distinct() %>%
+  count(course_id) %>%
+  rename(Quiz_count = n)
+
+## Join course counts to the analysis set
+dfCourse_information <- dfCourse_information %>%
+  left_join(dfAnnouncements_summarized, by = c("id" = "course_id")) %>%
+  left_join(dfAssignments_summarized, by = c("id" = "course_id")) %>%
+  left_join(dfMedia_summarized, by = c("id" = "course_id")) %>%
+  left_join(dfModules_summarized, by = c("id" = "course_id")) %>%
+  left_join(dfPages_summarized, by = c("id" = "course_id")) %>%
+  left_join(dfQuizzes_summarized, by = c("id" = "course_id"))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####
