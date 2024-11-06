@@ -9,7 +9,7 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-dfCourses <- read_file_proj("CAN_Index",
+dfCourses <- read_file_proj("CAN_Index2",
                             dir = "1. Ingelezen data/",
                             add_branch = TRUE,
                             base_dir = Sys.getenv("OUTPUT_DIR"),
@@ -23,11 +23,15 @@ tryCatch({
                                            base_dir = Sys.getenv("OUTPUT_DIR"),
                                            extension = "rds")
 
+  # Check for errors in the existing data
+  error_courses <- dfEnrolments_filled %>%
+    filter(!is.na(error)) %>%
+    pull(course_id)
+
   df <- dfCourses %>%
-    dplyr::filter(!course.id %in% dfEnrolments_filled$course_id)
+    dplyr::filter(!id %in% dfEnrolments_filled$course_id | id %in% error_courses)
 
   cat("Number of courses to process: ", nrow(df), "\n")
-
 
 }, error = function(e) {
   # If read_file_proj throws an error, process all files
@@ -102,7 +106,7 @@ parse_link_header <- function(header) {
 plan(multisession, workers = parallel::detectCores() - 1)
 
 dfEnrolments <- df %>%
-  pull(course.id) %>%
+  pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
       {
