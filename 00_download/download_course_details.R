@@ -9,7 +9,7 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-dfCourses <- read_file_proj("CAN_Index",
+dfCourses <- read_file_proj("CAN_Index2",
                             dir = "1. Ingelezen data/",
                             add_branch = TRUE,
                             base_dir = Sys.getenv("OUTPUT_DIR"),
@@ -24,7 +24,7 @@ tryCatch({
                                            extension = "rds")
 
   df <- dfCourses %>%
-    dplyr::filter(!course.id %in% dfCourse_details_filled$id)
+    dplyr::filter(!id %in% dfCourse_details_filled$id)
 
   cat("Number of courses to process: ", nrow(df), "\n")
 
@@ -45,7 +45,7 @@ library(furrr)
 plan(multisession, workers = parallel::detectCores() - 1)
 
 dfCourse_details <- df %>%
-  pull(course.id) %>%
+  pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
       {
