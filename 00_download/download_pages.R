@@ -9,7 +9,7 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-dfCourses <- read_file_proj("CAN_Index",
+dfCourses <- read_file_proj("CAN_Index2",
                             dir = "1. Ingelezen data/",
                             add_branch = TRUE,
                             base_dir = Sys.getenv("OUTPUT_DIR"),
@@ -23,8 +23,17 @@ tryCatch({
                                            base_dir = Sys.getenv("OUTPUT_DIR"),
                                            extension = "rds")
 
+  # Check for errors in the existing data
+  error_courses <- dfPages_filled %>%
+    dplyr::filter(!is.na(error)) %>%
+    pull(course_id) %>%
+    unique()
+
   df <- dfCourses %>%
-    dplyr::filter(!course.id %in% dfPages_filled$course_id)
+    dplyr::filter(!id %in% dfPages_filled$course_id | id %in% error_courses)
+
+  # df <- dfCourses %>%
+  #   dplyr::filter(!id %in% dfPages_filled$course_id)
 
   cat("Number of courses to process: ", nrow(df), "\n")
 
@@ -44,18 +53,42 @@ library(furrr)
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
+# dfPages <- df %>%
+#   pull(id) %>%
+#   future_map_dfr(~ {
+#     tryCatch(
+#       {
+#         vvcanvas::get_course_pages(canvas, .x)
+#       },
+#       error = function(e) {
+#         tibble(course_id = .x, error = as.character(e))
+#       }
+#     )
+#   }, .progress = TRUE)
+
+
 dfPages <- df %>%
-  pull(course.id) %>%
+  sample_n(10) %>%
+  pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
       {
-        vvcanvas::get_course_pages(canvas, .x)
+        result <- vvcanvas::get_course_pages(canvas, .x)
+        result %>% mutate(course_id = .x)
       },
       error = function(e) {
         tibble(course_id = .x, error = as.character(e))
       }
     )
   }, .progress = TRUE)
+
+if (exists("dfPages_filled")) {
+  dfPages <- bind_rows(dfPages, dfPages_filled)
+  dfPages <- dfPages %>%
+    mutate(across(where(is.character), ~iconv(., to = "UTF-8"))) %>%
+    distinct()
+}
+
 
 
 if (exists("dfPages_filled")) {
