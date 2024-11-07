@@ -11,12 +11,15 @@
 
 dfEnrolments <- read_file_proj("CAN_Enrolments")
 dfCourse_details <- read_file_proj("CAN_Course_details")
-
+dfCourses <- dfCourses %>%
+  select(id, name)
 
 dfCourse_to_join <- dfCourse_details %>%
   distinct() %>%
   mutate(INS_Inschrijvingsjaar = str_extract(sis_course_id, "(?<=_)(201[6-9]|202[0-9]|2030)(?=_)")) %>%
-  select(id, name, sis_course_id, INS_Inschrijvingsjaar)
+  select(id, name, sis_course_id, INS_Inschrijvingsjaar, course_code) %>%
+  left_join(dfCourses, by = c("id" = "id",
+                              "name" = "name"))
 
 
 ## handle double entries and non-active users

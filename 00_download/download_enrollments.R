@@ -25,7 +25,7 @@ tryCatch({
 
   # Check for errors in the existing data
   error_courses <- dfEnrolments_filled %>%
-    filter(!is.na(error)) %>%
+    dplyr::filter(!is.na(error)) %>%
     pull(course_id)
 
   df <- dfCourses %>%
@@ -122,7 +122,8 @@ dfEnrolments <- df %>%
 
 
 if (exists("dfEnrolments_filled")) {
-  dfEnrolments <- bind_rows(dfEnrolments, dfEnrolments_filled)
+  dfEnrolments <- bind_rows(dfEnrolments, dfEnrolments_filled) %>%
+    distinct()
 }
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

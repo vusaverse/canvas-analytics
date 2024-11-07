@@ -45,7 +45,7 @@ library(furrr)
 plan(multisession, workers = parallel::detectCores() - 1)
 
 dfCourse_details <- df %>%
-  pull(id) %>%
+  dplyr::pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
       {
@@ -60,6 +60,18 @@ dfCourse_details <- df %>%
 if (exists("dfCourse_details_filled")) {
   dfCourse_details <- bind_rows(dfCourse_details, dfCourse_details_filled)
 }
+
+
+## Join term information to dataframe
+dfTerms <- read_file_proj("CAN_Terms",
+                            dir = "1. Ingelezen data/",
+                            add_branch = TRUE,
+                            base_dir = Sys.getenv("OUTPUT_DIR"),
+                            extension = "rds")
+
+
+dfCourse_details <- dfCourse_details %>%
+  dplyr::left_join(dfTerms, by = c("enrollment_term_id" = "id"), suffix = c("", "_term"))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

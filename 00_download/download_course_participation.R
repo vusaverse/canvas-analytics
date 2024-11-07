@@ -10,7 +10,7 @@
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-dfCourses <- read_file_proj("CAN_Index",
+dfCourses <- read_file_proj("CAN_Index2",
                             dir = "1. Ingelezen data/",
                             add_branch = TRUE,
                             base_dir = Sys.getenv("OUTPUT_DIR"),
@@ -24,8 +24,15 @@ tryCatch({
                                             base_dir = Sys.getenv("OUTPUT_DIR"),
                                             extension = "rds")
 
+
+  # Check for errors in the existing data
+  error_courses <- Course_participation_filled %>%
+    dplyr::filter(!is.na(error)) %>%
+    pull(course_id)
+
   df <- dfCourses %>%
-    dplyr::filter(!course.id %in% Course_participation_filled$course_id)
+    dplyr::filter(!id %in% Course_participation_filled$course_id | id %in% error_courses)
+
 
   cat("Number of courses to process: ", nrow(df), "\n")
 
@@ -71,7 +78,7 @@ get_course_participation <- function(canvas, course_id) {
 
 
 dfCourse_participation <- df %>%
-  pull(course.id) %>%
+  pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
       {

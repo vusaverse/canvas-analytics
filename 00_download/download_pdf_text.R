@@ -9,38 +9,15 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+MAX_FILE_SIZE <- 1 * 1024 * 1024  # 0.1 MB
+
 # Load necessary libraries
+library(R.utils)  # For withTimeout function
 library(pdftools)
 library(furrr)
-library(dplyr)
 library(purrr)
 library(lubridate)
-
-# Set maximum file size (in bytes)
-MAX_FILE_SIZE <- 0.10 * 1024 * 1024  # 0.1 MB
-
-# Function to extract content from PDF files
-extract_pdf_content <- function(url) {
-  tryCatch({
-    temp_file <- tempfile(fileext = ".pdf")
-    download.file(url, temp_file, mode = "wb", quiet = TRUE)
-
-    # Extract text from PDF
-    all_text <- pdf_text(temp_file) %>%
-      paste(collapse = "\n\n")
-
-    unlink(temp_file)
-    return(all_text)
-  }, error = function(e) {
-    warning(paste("Error processing URL:", url, "-", e$message))
-    return(NA_character_)
-  })
-}
-
-# Safely wrapped version of extract_pdf_content
-safe_extract_pdf_content <- purrr::safely(extract_pdf_content)
-
-options(future.globals.maxSize = 1000 * 1024^2)  # 1GB
+library(dplyr)
 
 tryCatch({
   dfPDF <- read_file_proj("CAN_PDF_text",
@@ -78,10 +55,62 @@ tryCatch({
   cat("Processing all PDF files.\n")
 })
 
+# Set maximum file size (in bytes)
+
+# Function to extract content from PDF files
+extract_pdf_content <- function(url) {
+  tryCatch({
+    temp_file <- tempfile(fileext = ".pdf")
+    download.file(url, temp_file, mode = "wb", quiet = TRUE)
+
+    # Extract text from PDF
+    all_text <- pdf_text(temp_file) %>%
+      paste(collapse = "\n\n")
+
+    unlink(temp_file)
+    return(all_text)
+  }, error = function(e) {
+    warning(paste("Error processing URL:", url, "-", e$message))
+    return(NA_character_)
+  })
+}
+
+# Safely wrapped version of extract_pdf_content
+safe_extract_pdf_content <- purrr::safely(extract_pdf_content)
+
+options(future.globals.maxSize = 1000 * 1024^2)  # 1GB
 
 
+# Function to extract content from PDF files with individual timeout
+extract_pdf_content <- function(url, timeout = 60) {
+  result <- NULL
+  tryCatch({
+    withTimeout({
+      temp_file <- tempfile(fileext = ".pdf")
+      download.file(url, temp_file, mode = "wb", quiet = TRUE)
 
-process_pdf_files <- function(df, batch_size = 50, num_workers = 4, timeout = 60) {
+      # Extract text from PDF
+      all_text <- pdf_text(temp_file) %>%
+        paste(collapse = "\n\n")
+
+      unlink(temp_file)
+      result <- all_text
+    }, timeout = timeout)
+  }, error = function(e) {
+    if (inherits(e, "TimeoutException")) {
+      warning(paste("Timeout processing URL:", url))
+    } else {
+      warning(paste("Error processing URL:", url, "-", e$message))
+    }
+    return(NA_character_)
+  })
+  return(result)
+}
+
+# Safely wrapped version of extract_pdf_content
+safe_extract_pdf_content <- purrr::safely(extract_pdf_content)
+
+process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout = 60, batch_timeout = 300) {
   plan(multisession, workers = num_workers)
 
   url_table <- df %>%
@@ -100,41 +129,49 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, timeout = 60
 
     start_time <- Sys.time()
 
-    tryCatch({
-      batch_result <- batch %>%
-        mutate(extraction_result = future_map(
-          url,
-          safe_extract_pdf_content,
-          .progress = TRUE,
-          .options = furrr_options(seed = TRUE)
-        ))
-
-      results[[length(results) + 1]] <- batch_result
-
-      cat("Batch completed successfully.\n")
+    batch_result <- tryCatch({
+      withTimeout({
+        batch %>%
+          mutate(extraction_result = future_map(
+            url,
+            ~safe_extract_pdf_content(.x, timeout = pdf_timeout),
+            .progress = TRUE,
+            .options = furrr_options(seed = TRUE)
+          ))
+      }, timeout = batch_timeout)
     }, error = function(e) {
-      cat("Error occurred:", conditionMessage(e), "\n")
-      cat("Saving current results and exiting.\n")
-      return(bind_rows(results))
+      if (inherits(e, "TimeoutException")) {
+        cat("Batch processing exceeded timeout. Exiting process.\n")
+      } else {
+        cat("Error occurred:", conditionMessage(e), "\n")
+      }
+      # Return partial results for this batch
+      batch %>%
+        mutate(extraction_result = map(url, ~list(result = NA_character_, error = "Batch timeout or error")))
     })
+
+    results[[length(results) + 1]] <- batch_result
 
     end_time <- Sys.time()
     elapsed <- as.numeric(difftime(end_time, start_time, units = "secs"))
-    cat("Batch processing time:", round(elapsed, 2), "seconds\n\n")
+    cat("Batch processing time:", round(elapsed, 2), "seconds\n")
+    cat("Processed", nrow(batch_result), "files in this batch\n\n")
 
-    if (elapsed >= timeout) {
-      cat("Batch processing exceeded timeout. Exiting and returning results.\n")
-      return(bind_rows(results))
+    # Exit the loop if a timeout or error occurred
+    if (any(sapply(batch_result$extraction_result, function(x) !is.null(x$error)))) {
+      cat("Exiting process due to timeout or error.\n")
+      break
     }
   }
 
   bind_rows(results)
 }
 
+
 # Process the files
 # result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4)
 
-result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4, timeout = 60)
+result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4, pdf_timeout = 600, batch_timeout = 1200)
 
 # Post-process results
 final_table <- result_table %>%

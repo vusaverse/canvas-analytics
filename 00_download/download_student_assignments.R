@@ -10,12 +10,16 @@
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-dfStudents <- read_file_proj("CAN_Students",
+dfStudents <- read_file_proj("CAN_Enrolments",
                             dir = "1. Ingelezen data/",
                             add_branch = TRUE,
                             base_dir = Sys.getenv("OUTPUT_DIR"),
                             extension = "rds")
 
+
+dfStudents <- dfStudents %>%
+  dplyr::filter(type == "StudentEnrollment") %>%
+  distinct(user_id, course_id)
 
 tryCatch({
   # Read the previously processed data
@@ -26,7 +30,7 @@ tryCatch({
                                    extension = "rds")
 
   df <- dfStudents %>%
-    anti_join(dfStudent_assignment_data_filled, by = c("course_id", "id" = "student_id"))
+    anti_join(dfStudent_assignment_data_filled, by = c("course_id", "user_id" = "student_id"))
 
 
   cat("Number of courses to process: ", nrow(df), "\n")

@@ -53,22 +53,7 @@ library(furrr)
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
-# dfPages <- df %>%
-#   pull(id) %>%
-#   future_map_dfr(~ {
-#     tryCatch(
-#       {
-#         vvcanvas::get_course_pages(canvas, .x)
-#       },
-#       error = function(e) {
-#         tibble(course_id = .x, error = as.character(e))
-#       }
-#     )
-#   }, .progress = TRUE)
-
-
 dfPages <- df %>%
-  sample_n(10) %>%
   pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
@@ -89,15 +74,6 @@ if (exists("dfPages_filled")) {
     distinct()
 }
 
-
-
-if (exists("dfPages_filled")) {
-  dfPages <- bind_rows(dfPages, dfPages_filled)
-  dfPages <- dfPages %>%
-    mutate(across(where(is.character), ~iconv(., to = "UTF-8"))) %>%
-    distinct()
-
-}
 
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

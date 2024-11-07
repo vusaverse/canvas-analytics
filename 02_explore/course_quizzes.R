@@ -20,7 +20,7 @@ dfCourse_to_join <- dfCourse_details %>%
 
 
 dfQuizzes_summarized <- dfQuizzes %>%
-  dplyr::filter(question_count >= 0) %>%
+  dplyr::filter(question_count > 0) %>%
   distinct() %>%
   group_by(course_id) %>%
   summarise(
@@ -32,7 +32,7 @@ dfQuizzes_summarized <- dfQuizzes %>%
 
 
 dfQuizzes_summarized <- dfQuizzes %>%
-  dplyr::filter(question_count >= 0) %>%
+  dplyr::filter(question_count > 0) %>%
   distinct() %>%
   group_by(course_id) %>%
   summarise(
