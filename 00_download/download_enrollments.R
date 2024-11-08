@@ -23,13 +23,8 @@ tryCatch({
                                            base_dir = Sys.getenv("OUTPUT_DIR"),
                                            extension = "rds")
 
-  # Check for errors in the existing data
-  error_courses <- dfEnrolments_filled %>%
-    dplyr::filter(!is.na(error)) %>%
-    pull(course_id)
-
   df <- dfCourses %>%
-    dplyr::filter(!id %in% dfEnrolments_filled$course_id | id %in% error_courses)
+    dplyr::filter(!id %in% dfEnrolments_filled$course_id)
 
   cat("Number of courses to process: ", nrow(df), "\n")
 
@@ -41,7 +36,6 @@ tryCatch({
   cat("Number of courses to process: ", nrow(df), "\n")
 
 })
-
 
 
 get_all_enrollments <- function(canvas, course_id, per_page = 100) {
@@ -84,10 +78,19 @@ get_all_enrollments <- function(canvas, course_id, per_page = 100) {
   # Combine all pages of enrollments into a single data frame
   combined_enrollments <- do.call(plyr::rbind.fill, all_enrollments)
 
+  # If no enrollments were found, return a dataframe with just the course_id
+  if (is.null(combined_enrollments) || nrow(combined_enrollments) == 0) {
+    return(tibble(course_id = course_id))
+  }
+
+  # Add the course_id column
+  combined_enrollments <- combined_enrollments %>%
+    dplyr::mutate(course_id = course_id)
+
   return(combined_enrollments)
 }
 
-# Helper function to parse the Link header
+# Helper function to parse the Link header (unchanged)
 parse_link_header <- function(header) {
   links <- strsplit(header, ",")[[1]]
   result <- list()

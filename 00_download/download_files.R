@@ -24,16 +24,10 @@ tryCatch({
                                    base_dir = Sys.getenv("OUTPUT_DIR"),
                                    extension = "rds")
 
-  # Check for errors in the existing data
-  error_courses <- dfFiles_filled %>%
-    dplyr::filter(!is.na(error)) %>%
-    pull(course_id) %>%
-    unique()
-
 
 
   df <- dfCourses %>%
-    dplyr::filter(!id %in% dfFiles_filled$course_id | id %in% error_courses)
+    dplyr::filter(!id %in% dfFiles_filled$course_id)
 
 
   cat("Number of courses to process: ", nrow(df), "\n")
@@ -119,6 +113,7 @@ library(parallel)
 plan(multisession, workers = parallel::detectCores() - 1)
 
 dfFiles <- df %>%
+  sample_n(10) %>%
   pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
