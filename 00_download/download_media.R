@@ -45,12 +45,41 @@ library(furrr)
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
+
+get_course_media_objects <- function(canvas, course_id, per_page = 100) {
+  # Construct the API endpoint URL
+  url <- paste0(canvas$base_url, "/api/v1/courses/", course_id, "/media_objects?per_page=", per_page)
+
+  # Make the API request
+  response <- httr::GET(url, httr::add_headers(Authorization = paste("Bearer", canvas$api_key)))
+
+  # Check the response status code
+  if (httr::status_code(response) != 200) {
+    stop("Failed to retrieve course media objects. Please check your authentication and API endpoint.")
+  }
+
+  # Parse the response as JSON
+  media_objects <- httr::content(response, "text", encoding = "UTF-8") %>%
+    jsonlite::fromJSON(flatten = TRUE)
+
+  # If media_objects is empty, return a dataframe with just the course_id
+  if (length(media_objects) == 0 || nrow(media_objects) == 0) {
+    return(tibble(course_id = course_id))
+  }
+
+  # Otherwise, return the list of media objects with course_id
+  media_objects %>%
+    as.data.frame() %>%
+    dplyr::mutate(course_id = course_id)
+}
+
+
 dfMedia <- df %>%
   pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
       {
-        vvcanvas::get_course_media_objects(canvas, .x)
+        get_course_media_objects(canvas, .x)
       },
       error = function(e) {
         tibble(course_id = .x, error = as.character(e))

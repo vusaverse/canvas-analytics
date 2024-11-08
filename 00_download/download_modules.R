@@ -45,12 +45,39 @@ library(furrr)
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
+get_course_modules <- function(canvas, course_id, per_page = 100) {
+  # Construct the API endpoint URL
+  url <- paste0(canvas$base_url, "/api/v1/courses/", course_id, "/modules?per_page=", per_page)
+
+  # Make the API request
+  response <- httr::GET(url, httr::add_headers(Authorization = paste("Bearer", canvas$api_key)))
+
+  # Check the response status code
+  if (httr::status_code(response) != 200) {
+    stop("Failed to retrieve modules. Please check your authentication and API endpoint.")
+  }
+
+  # Parse the response as JSON
+  modules <- httr::content(response, "text", encoding = "UTF-8") %>%
+    jsonlite::fromJSON(flatten = TRUE)
+
+  # If modules is empty, return a dataframe with just the course_id
+  if (length(modules) == 0 || nrow(modules) == 0) {
+    return(tibble(course_id = course_id))
+  }
+
+  # Otherwise, return the list of modules with course_id
+  modules %>%
+    as.data.frame() %>%
+    dplyr::mutate(course_id = course_id)
+}
+
 dfModules <- df %>%
   pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
       {
-        vvcanvas::get_modules(canvas, .x)
+        get_course_modules(canvas, .x)
       },
       error = function(e) {
         tibble(course_id = .x, error = as.character(e))
@@ -60,7 +87,8 @@ dfModules <- df %>%
 
 
 if (exists("dfModules_filled")) {
-  dfModules <- bind_rows(dfModules, dfModules_filled)
+  dfModules <- bind_rows(dfModules, dfModules_filled) %>%
+    distinct()
 }
 
 
