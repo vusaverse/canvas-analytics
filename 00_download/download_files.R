@@ -27,7 +27,10 @@ tryCatch({
   # Check for errors in the existing data
   error_courses <- dfFiles_filled %>%
     dplyr::filter(!is.na(error)) %>%
-    pull(course_id)
+    pull(course_id) %>%
+    unique()
+
+
 
   df <- dfCourses %>%
     dplyr::filter(!id %in% dfFiles_filled$course_id | id %in% error_courses)
@@ -135,7 +138,9 @@ dfFiles <- df %>%
 
 
 if (exists("dfFiles_filled")) {
-  dfFiles <- bind_rows(dfFiles, dfFiles_filled)
+  dfFiles <- bind_rows(dfFiles, dfFiles_filled) %>%
+    distinct() %>%
+    filter(is.na(error))
 }
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
