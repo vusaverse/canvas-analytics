@@ -39,7 +39,6 @@ tryCatch({
 })
 
 
-
 get_all_course_assignments <- function(canvas, course_id, per_page = 100) {
   # Initialize an empty list to store all assignments
   all_assignments <- list()
@@ -80,21 +79,16 @@ get_all_course_assignments <- function(canvas, course_id, per_page = 100) {
   # Combine all pages of assignments into a single data frame
   combined_assignments <- do.call(plyr::rbind.fill, all_assignments)
 
-  return(combined_assignments)
-}
-
-# Helper function to parse the Link header (same as before)
-parse_link_header <- function(header) {
-  links <- strsplit(header, ",")[[1]]
-  result <- list()
-  for (link in links) {
-    parts <- strsplit(link, ";")[[1]]
-    url <- gsub("[<>]", "", trimws(parts[1]))
-    rel <- gsub("rel=", "", trimws(parts[2]))
-    rel <- gsub('"', '', rel)
-    result[[rel]] <- url
+  # If no assignments were found, return a dataframe with just the course_id
+  if (is.null(combined_assignments) || nrow(combined_assignments) == 0) {
+    return(tibble(course_id = course_id))
   }
-  return(result)
+
+  # Add the course_id column
+  combined_assignments <- combined_assignments %>%
+    dplyr::mutate(course_id = course_id)
+
+  return(combined_assignments)
 }
 
 
@@ -109,7 +103,6 @@ dfAssignments <- df %>%
   future_map_dfr(~ {
     tryCatch(
       {
-        # vvcanvas::get_assignments(canvas, .x)
         get_all_course_assignments(canvas, .x)
       },
       error = function(e) {
@@ -120,7 +113,8 @@ dfAssignments <- df %>%
 
 
 if (exists("dfAssignments_filled")) {
-  dfAssignments <- bind_rows(dfAssignments, dfAssignments_filled)
+  dfAssignments <- bind_rows(dfAssignments, dfAssignments_filled) %>%
+    distinct()
 }
 
 
