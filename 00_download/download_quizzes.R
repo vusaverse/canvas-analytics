@@ -42,6 +42,42 @@ tryCatch({
 library(parallel)
 library(furrr)
 
+get_course_quizzes <- function(canvas, course_id, per_page = 100) {
+  # Construct the API endpoint URL
+  url <- paste0(canvas$base_url, "/api/v1/courses/", course_id, "/quizzes?per_page=", per_page)
+
+  # Make the API request
+  response <- httr::GET(url, httr::add_headers(Authorization = paste("Bearer", canvas$api_key)))
+
+  # Check the response status code
+  if (httr::status_code(response) != 200) {
+    stop("Failed to retrieve course quizzes. Please check your authentication and API endpoint.")
+  }
+
+  # Parse the response as JSON
+  quizzes <- httr::content(response, "text", encoding = "UTF-8") %>%
+    jsonlite::fromJSON(flatten = TRUE)
+
+  # If quizzes is empty or NULL, return a dataframe with just the course_id
+  if (is.null(quizzes) || length(quizzes) == 0 || (is.data.frame(quizzes) && nrow(quizzes) == 0)) {
+    return(tibble(course_id = course_id))
+  }
+
+  # If quizzes is not a data frame, convert it to one
+  if (!is.data.frame(quizzes)) {
+    quizzes <- as.data.frame(quizzes)
+  }
+
+  # Add the course_id column
+  quizzes <- quizzes %>%
+    dplyr::mutate(course_id = course_id)
+
+  # Return the data frame of quizzes
+  return(quizzes)
+}
+
+
+
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
@@ -50,7 +86,7 @@ dfQuizzes <- df %>%
   future_map_dfr(~ {
     tryCatch(
       {
-        vvcanvas::get_course_quizzes(canvas, .x)
+        get_course_quizzes(canvas, .x)
       },
       error = function(e) {
         tibble(course_id = .x, error = as.character(e))
@@ -59,7 +95,8 @@ dfQuizzes <- df %>%
   }, .progress = TRUE)
 
 if (exists("dfQuizzes_filled")) {
-  dfQuizzes <- bind_rows(dfQuizzes, dfQuizzes_filled)
+  dfQuizzes <- bind_rows(dfQuizzes, dfQuizzes_filled) %>%
+    distinct()
 }
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
