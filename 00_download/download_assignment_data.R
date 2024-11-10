@@ -24,12 +24,12 @@ tryCatch({
                                            extension = "rds")
 
   # Check for errors in the existing data
-  error_courses <- dfAssignment_data_filled %>%
-    dplyr::filter(!is.na(error)) %>%
-    pull(course_id)
+  # error_courses <- dfAssignment_data_filled %>%
+  #   dplyr::filter(!is.na(error)) %>%
+  #   pull(course_id)
 
   df <- dfCourses %>%
-    dplyr::filter(!id %in% dfAssignment_data_filled$course_id | id %in% error_courses)
+    dplyr::filter(!id %in% dfAssignment_data_filled$course_id)
 
   cat("Number of courses to process: ", nrow(df), "\n")
 

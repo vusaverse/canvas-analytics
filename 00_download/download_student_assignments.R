@@ -17,8 +17,9 @@ dfStudents <- read_file_proj("CAN_Enrolments",
                             extension = "rds")
 
 
-dfStudents <- dfStudents %>%
+dfStudents_filtered <- dfStudents %>%
   dplyr::filter(type == "StudentEnrollment") %>%
+  dplyr::filter(!is.na(user_id), !is.na(course_id), !is.na(sis_user_id)) %>%
   distinct(user_id, course_id)
 
 tryCatch({
@@ -38,7 +39,7 @@ tryCatch({
 
 }, error = function(e) {
   # If read_file_proj throws an error, process all files
-  df <- dfStudents
+  df <- dfStudents_filtered
 
   cat(paste0("Processing all courses.\n"))
   cat("Number of courses to process: ", nrow(df), "\n")
@@ -78,26 +79,48 @@ library(furrr)
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
+
 dfStudent_assignment_data <- df %>%
-  dplyr::filter(name != "Test student") %>%
-  select(course_id, id) %>%
+  sample_n(100000) %>% # For testing purposes
+  select(course_id, user_id) %>%
   distinct() %>%
-  future_pmap_dfr(function(course_id, id) {
+  future_pmap_dfr(function(course_id, user_id) {
     tryCatch(
       {
-        get_user_course_assignment_data2(canvas, course_id, id)
+        result <- get_user_course_assignment_data2(canvas, course_id, user_id)
+
+        # If the result is empty or NULL, return a dataframe with course_id and student_id
+        if (is.null(result) || nrow(result) == 0) {
+          return(tibble(course_id = course_id, student_id = user_id, no_data = TRUE))
+        }
+
+        # If result is not empty, ensure it includes course_id and student_id
+        if (!"course_id" %in% names(result)) {
+          result$course_id <- course_id
+        }
+        if (!"student_id" %in% names(result)) {
+          result$student_id <- user_id
+        }
+
+        result
       },
       error = function(e) {
-        tibble(course_id = course_id, student_id = id, error = as.character(e))
+        tibble(course_id = course_id, student_id = user_id, error = as.character(e))
       }
     )
   }, .progress = TRUE)
-
 
 if (exists("dfStudent_assignment_data_filled")) {
   dfStudent_assignment_data <- bind_rows(dfStudent_assignment_data, dfStudent_assignment_data_filled) %>%
     distinct()
 }
+
+
+
+# if (exists("dfStudent_assignment_data_filled")) {
+#   dfStudent_assignment_data <- bind_rows(dfStudent_assignment_data, dfStudent_assignment_data_filled) %>%
+#     distinct()
+# }
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

@@ -113,7 +113,6 @@ library(parallel)
 plan(multisession, workers = parallel::detectCores() - 1)
 
 dfFiles <- df %>%
-  sample_n(10) %>%
   pull(id) %>%
   future_map_dfr(~ {
     tryCatch(
@@ -134,8 +133,7 @@ dfFiles <- df %>%
 
 if (exists("dfFiles_filled")) {
   dfFiles <- bind_rows(dfFiles, dfFiles_filled) %>%
-    distinct() %>%
-    filter(is.na(error))
+    distinct()
 }
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

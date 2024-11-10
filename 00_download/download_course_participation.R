@@ -26,13 +26,12 @@ tryCatch({
 
 
   # Check for errors in the existing data
-  error_courses <- Course_participation_filled %>%
-    dplyr::filter(!is.na(error)) %>%
-    pull(course_id)
+  # error_courses <- Course_participation_filled %>%
+  #   dplyr::filter(!is.na(error)) %>%
+  #   pull(course_id)
 
   df <- dfCourses %>%
-    dplyr::filter(!id %in% Course_participation_filled$course_id | id %in% error_courses)
-
+    dplyr::filter(!id %in% Course_participation_filled$course_id)
 
   cat("Number of courses to process: ", nrow(df), "\n")
 
