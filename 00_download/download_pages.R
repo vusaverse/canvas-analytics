@@ -94,6 +94,7 @@ if (exists("dfPages_filled")) {
   dfPages <- bind_rows(dfPages, dfPages_filled)
   dfPages <- dfPages %>%
     mutate(across(where(is.character), ~iconv(., to = "UTF-8"))) %>%
+    filter(!is.na(course_id)) %>%
     distinct()
 }
 

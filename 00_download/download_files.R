@@ -5,7 +5,7 @@
 ## Contact: vu-analytics@vu.nl
 ##
 ##' *INFO*:
-## 1) ___
+## 1) Attention, course_id might be missing when a page_id is found.
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
