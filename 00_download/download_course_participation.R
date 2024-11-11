@@ -91,7 +91,8 @@ dfCourse_participation <- df %>%
 
 
 if (exists("Course_participation_filled")) {
-  dfCourse_participation <- bind_rows(dfCourse_participation, Course_participation_filled)
+  dfCourse_participation <- bind_rows(dfCourse_participation, Course_participation_filled) %>%
+    distinct()
 }
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
