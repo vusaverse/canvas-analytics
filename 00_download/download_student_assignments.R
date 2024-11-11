@@ -81,7 +81,6 @@ plan(multisession, workers = parallel::detectCores() - 1)
 
 
 dfStudent_assignment_data <- df %>%
-  sample_n(100000) %>% # For testing purposes
   select(course_id, user_id) %>%
   distinct() %>%
   future_pmap_dfr(function(course_id, user_id) {
@@ -115,12 +114,6 @@ if (exists("dfStudent_assignment_data_filled")) {
     distinct()
 }
 
-
-
-# if (exists("dfStudent_assignment_data_filled")) {
-#   dfStudent_assignment_data <- bind_rows(dfStudent_assignment_data, dfStudent_assignment_data_filled) %>%
-#     distinct()
-# }
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####
