@@ -195,6 +195,11 @@
       ],
       "Hash": "cd9a672193789068eb5a2aad65a0dedf"
     },
+    "calendar": {
+      "Package": "calendar",
+      "Version": "0.2.0",
+      "Source": "Repository"
+    },
     "callr": {
       "Package": "callr",
       "Version": "3.7.6",
@@ -1498,6 +1503,11 @@
         "vctrs"
       ],
       "Hash": "960e2ae9e09656611e0b8214ad543207"
+    },
+    "styler": {
+      "Package": "styler",
+      "Version": "1.10.3",
+      "Source": "Repository"
     },
     "sys": {
       "Package": "sys",
