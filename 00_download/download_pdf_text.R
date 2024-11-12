@@ -40,6 +40,7 @@ tryCatch({
                             extension = "rds")
 
   df <- dfFiles %>%
+    dplyr::filter(grepl("\\.pdf$", ignore.case = TRUE, filename)) %>%
     dplyr::filter(mime_class == "pdf",
                   !id %in% dfPDF_filled$id,
                   size <= MAX_FILE_SIZE)
