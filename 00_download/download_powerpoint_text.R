@@ -39,7 +39,8 @@ tryCatch({
 
   df <- dfFiles %>%
     dplyr::filter(mime_class == "ppt",
-                  !id %in% dfPPT_filled$id)
+                  !id %in% dfPPT_filled$id) %>%
+    dplyr::filter(grepl("\\.pptx$", ignore.case = TRUE,  filename))
 
   cat("Processing only new or previously failed files.\n")
   ## cat the number of files to process
