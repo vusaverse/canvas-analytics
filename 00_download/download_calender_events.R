@@ -43,7 +43,7 @@ tryCatch({
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
-dfCalendar_events <- dfCourses %>%
+dfCalendar_events <- df %>%
   mutate(info = map2(id, calendar.ics, ~ list(id = .x, calendar_ics = .y))) %>%
   pull(info) %>%
   future_map_dfr(~ {
