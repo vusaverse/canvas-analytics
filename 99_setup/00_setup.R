@@ -19,6 +19,7 @@ source("99_setup/load_packages.R")
 source("99_setup/load_systemvariables.R")
 source("99_setup/create_dir_setup.R")
 source("99_setup/read_and_write_settings_functions.R")
+source("99_setup/connect_to_slack.R", print.eval = TRUE)
 
 ##'* INFO*
 ##' Authenticate with the Canvas LMS API
