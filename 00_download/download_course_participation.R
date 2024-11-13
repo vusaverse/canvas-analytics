@@ -25,11 +25,6 @@ tryCatch({
                                             extension = "rds")
 
 
-  # Check for errors in the existing data
-  # error_courses <- Course_participation_filled %>%
-  #   dplyr::filter(!is.na(error)) %>%
-  #   pull(course_id)
-
   df <- dfCourses %>%
     dplyr::filter(!id %in% Course_participation_filled$course_id)
 

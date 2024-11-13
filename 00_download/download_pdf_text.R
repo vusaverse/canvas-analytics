@@ -42,11 +42,17 @@ tryCatch({
   cat("Number of files to process: ", nrow(df), "\n")
 }, error = function(e) {
   # If read_file_proj throws an error, process all files
-  dfFiles <- readrds_csv(output = "20. Test/CAN_Files.rds")
+  dfFiles <- read_file_proj("CAN_Files",
+                            dir = "1. Ingelezen data/",
+                            add_branch = TRUE,
+                            base_dir = Sys.getenv("OUTPUT_DIR"),
+                            extension = "rds")
   df <- dfFiles %>%
     dplyr::filter(mime_class == "pdf")
 
-  cat("Processing all PDF files.\n")
+  cat("Processing all PPT files.\n")
+  ## cat the number of files to process
+  cat("Number of files to process: ", nrow(df), "\n")
 })
 
 # Set maximum file size (in bytes)
@@ -164,6 +170,8 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
 
 # Process the files
 # result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4)
+# Set up parallel processing
+plan(multisession, workers = parallel::detectCores() - 1)
 
 result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4, pdf_timeout = 600, batch_timeout = 1200)
 
