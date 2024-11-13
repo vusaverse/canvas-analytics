@@ -104,7 +104,8 @@ process_ppt_files <- function(df, batch_size = 50, num_workers = 4) {
   plan(multisession, workers = num_workers)
 
   url_table <- df %>%
-    dplyr::filter(grepl("\\.pptx$", ignore.case = TRUE,  filename))
+    dplyr::filter(grepl("\\.pptx$", ignore.case = TRUE,  filename)) %>%
+    sample_n(1000)
 
   total_files <- nrow(url_table)
   cat("Total files to process:", total_files, "\n")
@@ -129,7 +130,7 @@ process_ppt_files <- function(df, batch_size = 50, num_workers = 4) {
 plan(multisession, workers = parallel::detectCores() - 1)
 
 # Process the files
-result_table <- process_ppt_files(df, batch_size = 100, num_workers = 4)
+result_table <- process_ppt_files(df, batch_size = 50, num_workers = 2)
 
 # Post-process results
 final_table <- result_table %>%
@@ -137,7 +138,8 @@ final_table <- result_table %>%
     extracted_text = unlist(extraction_result)) %>%
   dplyr::filter(!is.na(extracted_text)) %>%
   select(-extraction_result) %>%
-  bind_rows(dfPPT_filled)
+  bind_rows(dfPPT_filled) %>%
+  distinct()
 
 
 
