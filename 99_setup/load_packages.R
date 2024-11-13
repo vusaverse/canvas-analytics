@@ -24,7 +24,14 @@ basic_packages <- c(
   "readr",          # Used to read in data
   "vusa",           # Mainly to always have the addins
   "dplyr",           # Used for the dplyr environment
-  "officer"
+  "officer",        # Used to extract text from PowerPoint presentations
+  "parallel",      # Used for parallel processing
+  "furrr",         # Used for parallel processing
+  "R.utils",       # Used for utility functions
+  "purrr",         # Used for functions and vectors
+  "lubridate",     # Used to work with dates and times
+  "pdftools"      # Used to extract text from PDFs
+
 )
 
 # Load the packages into the library
