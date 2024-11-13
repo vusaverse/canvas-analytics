@@ -30,7 +30,7 @@ tryCatch({
                                    base_dir = Sys.getenv("OUTPUT_DIR"),
                                    extension = "rds")
 
-  df <- dfStudents %>%
+  df <- dfStudents_filtered %>%
     anti_join(dfStudent_assignment_data_filled, by = c("course_id", "user_id" = "student_id"))
 
 
