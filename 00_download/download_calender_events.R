@@ -53,8 +53,7 @@ dfCalendar_events <- df %>%
         id <- .x$id
         calendar_ics <- .x$calendar_ics
 
-        # Attempt to read the calendar data
-        calendar_data <- calendar::ic_read(calendar_ics)
+        calendar_data <- ical::ical_parse_df(calendar_ics)
 
         # Ensure the result is a data frame and add id
         as.data.frame(calendar_data) %>% mutate(course_id = id, calendar_ics = calendar_ics)
