@@ -12,8 +12,6 @@
 dfCourses <- readrds_csv(output = "20. Test/CAN_Index.rds")
 cat("read in")
 
-library(parallel)
-library(furrr)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)

@@ -71,9 +71,6 @@ get_student_summaries <- function(canvas, course_id, per_page = 100) {
 }
 
 
-library(parallel)
-library(furrr)
-
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
@@ -97,6 +94,10 @@ if (exists("dfCourse_student_summaries_filled")) {
   dfCourse_student_summaries <- bind_rows(dfCourse_student_summaries, dfCourse_student_summaries_filled) %>%
     distinct()
 }
+
+prepare_and_send_summary(dfCourse_student_summaries,
+                         dfCourse_student_summaries_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

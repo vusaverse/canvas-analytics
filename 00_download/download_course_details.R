@@ -38,8 +38,6 @@ tryCatch({
 
 })
 
-library(parallel)
-library(furrr)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
@@ -61,6 +59,9 @@ if (exists("dfCourse_details_filled")) {
   dfCourse_details <- bind_rows(dfCourse_details, dfCourse_details_filled)
 }
 
+prepare_and_send_summary(dfCourse_details,
+                         dfCourse_details_filled,
+                         nrow(df))
 
 ## Join term information to dataframe
 dfTerms <- read_file_proj("CAN_Terms",

@@ -38,8 +38,6 @@ tryCatch({
 
 })
 
-library(parallel)
-library(furrr)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
@@ -97,6 +95,10 @@ if (exists("dfPages_filled")) {
     filter(!is.na(course_id)) %>%
     distinct()
 }
+
+prepare_and_send_summary(dfPages,
+                         dfPages_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

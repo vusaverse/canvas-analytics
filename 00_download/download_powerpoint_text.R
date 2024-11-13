@@ -58,7 +58,6 @@ tryCatch({
 options(future.globals.maxSize = 1000 * 1024^2)  # 1GB
 
 
-library(officer)
 
 # Function to extract content from PPT
 extract_ppt_content <- function(url) {
@@ -90,10 +89,6 @@ extract_ppt_content <- function(url) {
 
 # Safely wrapped version of extract_ppt_content
 safe_extract_ppt_content <- purrr::safely(extract_ppt_content)
-
-library(parallel)
-library(furrr)
-#
 
 
 # Main processing function
@@ -141,6 +136,9 @@ cat("Total files processed:", nrow(final_table), "\n")
 cat("Successful extractions:", sum(!is.na(final_table$extracted_text)), "\n")
 cat("Failed extractions:", sum(is.na(final_table$extracted_text)), "\n")
 
+prepare_and_send_summary(final_table,
+                         dfPPT_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

@@ -38,10 +38,6 @@ tryCatch({
 
 })
 
-
-library(parallel)
-library(furrr)
-
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
@@ -97,6 +93,10 @@ if (exists("dfAnnouncements_filled")) {
   dfAnnouncements <- bind_rows(dfAnnouncements, dfAnnouncements_filled) %>%
     distinct()
 }
+
+prepare_and_send_summary(dfAnnouncements,
+                         dfAnnouncements_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

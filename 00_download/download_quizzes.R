@@ -39,8 +39,6 @@ tryCatch({
 })
 
 
-library(parallel)
-library(furrr)
 
 get_course_quizzes <- function(canvas, course_id, per_page = 100) {
   # Construct the API endpoint URL
@@ -98,6 +96,10 @@ if (exists("dfQuizzes_filled")) {
   dfQuizzes <- bind_rows(dfQuizzes, dfQuizzes_filled) %>%
     distinct()
 }
+
+prepare_and_send_summary(dfQuizzes,
+                         dfQuizzes_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

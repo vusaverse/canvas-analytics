@@ -92,9 +92,6 @@ get_all_course_assignments <- function(canvas, course_id, per_page = 100) {
 }
 
 
-library(parallel)
-library(furrr)
-
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
@@ -117,6 +114,9 @@ if (exists("dfAssignments_filled")) {
     distinct()
 }
 
+prepare_and_send_summary(dfAssignments,
+                         dfAssignments_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

@@ -73,8 +73,6 @@ get_user_course_assignment_data2 <- function(canvas, course_id, student_id) {
 }
 
 
-library(parallel)
-library(furrr)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
@@ -114,6 +112,9 @@ if (exists("dfStudent_assignment_data_filled")) {
     distinct()
 }
 
+prepare_and_send_summary(dfStudent_assignment_data,
+                         dfStudent_assignment_data_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

@@ -11,13 +11,6 @@
 
 MAX_FILE_SIZE <- 1 * 1024 * 1024  # 0.1 MB
 
-# Load necessary libraries
-library(R.utils)  # For withTimeout function
-library(pdftools)
-library(furrr)
-library(purrr)
-library(lubridate)
-library(dplyr)
 
 tryCatch({
   dfPDF <- read_file_proj("CAN_PDF_text",
@@ -188,6 +181,9 @@ cat("Successful extractions:", sum(!is.na(final_table$extracted_text)), "\n")
 cat("Failed extractions:", sum(is.na(final_table$extracted_text)), "\n")
 
 
+prepare_and_send_summary(final_table,
+                         dfPDF_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

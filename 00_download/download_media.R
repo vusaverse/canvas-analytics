@@ -39,8 +39,6 @@ tryCatch({
 })
 
 
-library(parallel)
-library(furrr)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
@@ -91,6 +89,10 @@ if (exists("dfMedia_filled")) {
   dfMedia <- bind_rows(dfMedia, dfMedia_filled) %>%
     distinct()
 }
+
+prepare_and_send_summary(dfMedia,
+                         dfMedia_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

@@ -39,8 +39,6 @@ tryCatch({
 
 })
 
-library(parallel)
-library(furrr)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
@@ -73,6 +71,10 @@ if (exists("dfCalendar_events")) {
   dfCalendar_events <- bind_rows(dfCalendar_events, dfCalendar_events_filled) %>%
     distinct()
 }
+
+prepare_and_send_summary(dfCalendar_events,
+                         dfCalendar_events_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

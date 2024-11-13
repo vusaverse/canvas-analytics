@@ -103,12 +103,6 @@ parse_link_header <- function(header) {
 }
 
 
-
-library(dplyr)
-library(purrr)
-library(furrr)
-library(parallel)
-
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
 
@@ -135,6 +129,10 @@ if (exists("dfFiles_filled")) {
   dfFiles <- bind_rows(dfFiles, dfFiles_filled) %>%
     distinct()
 }
+
+prepare_and_send_summary(dfFiles,
+                         dfFiles_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

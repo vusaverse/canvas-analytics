@@ -67,6 +67,9 @@ if (exists("dfAssignment_data_filled")) {
   dfAssignment_data <- bind_rows(dfAssignment_data, dfAssignment_data_filled)
 }
 
+prepare_and_send_summary(dfAssignment_data,
+                         dfAssignment_data_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####

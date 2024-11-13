@@ -39,8 +39,6 @@ tryCatch({
 })
 
 
-library(parallel)
-library(furrr)
 
 # Set up parallel processing
 plan(multisession, workers = parallel::detectCores() - 1)
@@ -91,6 +89,9 @@ if (exists("dfModules_filled")) {
     distinct()
 }
 
+prepare_and_send_summary(dfModules,
+                         dfModules_filled,
+                         nrow(df))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## WRITE & CLEAR ####
