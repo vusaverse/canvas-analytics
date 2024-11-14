@@ -65,8 +65,6 @@ tryCatch({
 
 options(future.globals.maxSize = 1000 * 1024^2)  # 1GB
 
-
-
 # Function to extract content from PPT
 extract_ppt_content <- function(url) {
   tryCatch({
@@ -105,7 +103,7 @@ process_ppt_files <- function(df, batch_size = 50, num_workers = 4) {
 
   url_table <- df %>%
     dplyr::filter(grepl("\\.pptx$", ignore.case = TRUE,  filename)) %>%
-    sample_n(1000)
+    sample_n(10000)
 
   total_files <- nrow(url_table)
   cat("Total files to process:", total_files, "\n")
@@ -126,11 +124,9 @@ process_ppt_files <- function(df, batch_size = 50, num_workers = 4) {
   bind_rows(results)
 }
 
-# Set up parallel processing
-plan(multisession, workers = parallel::detectCores() - 1)
 
 # Process the files
-result_table <- process_ppt_files(df, batch_size = 50, num_workers = 2)
+result_table <- process_ppt_files(df, batch_size = 100, num_workers = parallel::detectCores() - 1)
 
 # Post-process results
 final_table <- result_table %>%

@@ -169,11 +169,11 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
 
 
 # Process the files
-# result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4)
-# Set up parallel processing
-plan(multisession, workers = parallel::detectCores() - 1)
-
-result_table <- process_pdf_files(df, batch_size = 100, num_workers = 4, pdf_timeout = 600, batch_timeout = 1200)
+result_table <- process_pdf_files(df,
+                                  batch_size = 100,
+                                  num_workers = parallel::detectCores() - 1,
+                                  pdf_timeout = 600,
+                                  batch_timeout = 1200)
 
 # Post-process results
 final_table <- result_table %>%
