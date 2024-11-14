@@ -164,6 +164,9 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
     }
   }
 
+  temp_dir <- paste0("C:/Users/", Sys.getenv("USERNAME"), "/AppData/Local/Temp/") %>%
+    unlink(recursive = TRUE)
+
   bind_rows(results)
 }
 

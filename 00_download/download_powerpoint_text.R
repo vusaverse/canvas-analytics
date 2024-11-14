@@ -86,6 +86,7 @@ extract_ppt_content <- function(url) {
       paste(collapse = "\n\n")
 
     unlink(temp_file)
+
     return(all_text)
   }, error = function(e) {
     warning(paste("Error processing URL:", url, "-", e$message))
@@ -121,7 +122,11 @@ process_ppt_files <- function(df, batch_size = 50, num_workers = 4) {
     results[[length(results) + 1]] <- batch_result
   }
 
+  temp_dir <- paste0("C:/Users/", Sys.getenv("USERNAME"), "/AppData/Local/Temp/") %>%
+    unlink(recursive = TRUE)
   bind_rows(results)
+
+
 }
 
 
@@ -137,12 +142,6 @@ final_table <- result_table %>%
   bind_rows(dfPPT_filled) %>%
   distinct()
 
-
-
-# Print summary
-cat("Total files processed:", nrow(final_table), "\n")
-cat("Successful extractions:", sum(!is.na(final_table$extracted_text)), "\n")
-cat("Failed extractions:", sum(is.na(final_table$extracted_text)), "\n")
 
 prepare_and_send_summary(final_table,
                          dfPPT_filled,
