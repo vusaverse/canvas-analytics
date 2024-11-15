@@ -29,7 +29,7 @@ dfMedia_mutated <- dfMedia %>%
     })
   ) %>%
   unnest(media_sources) %>%
-  distinct(media_id, .keep_all=TRUE) %>%
+  distinct(course_id, media_id, .keep_all=TRUE) %>%
   mutate(
     size_bits = as.numeric(size) * 1024 * 8,  # Convert KB to bits
     bitrate_bps = as.numeric(bitrate),        # Assuming it's already in bps
@@ -52,5 +52,6 @@ dfMedia_mutated <- dfMedia %>%
     duration_formatted = sprintf("%02d:%02d:%02d", norm_hours, norm_minutes, norm_seconds)
   )
 
+##' *to do * change write location
 vusa::write_file(dfMedia_mutated, "CAN_Media_with_length", destination = "20. Test/", save_rds = TRUE)
 

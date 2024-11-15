@@ -36,12 +36,12 @@ dfCourses_filtered <- dfCourses %>%
   mutate(academic_year = as.integer(academic_year)) %>%
   select(course_code, academic_year, id)
 
-result <- dfABE_Uiteindelijk %>%
+dfABE_Uiteindelijk <- dfABE_Uiteindelijk %>%
   dplyr::left_join(dfCourses_filtered, by = c("CourseName" = "course_code", "INS_Inschrijvingsjaar" = "academic_year")) %>%
   distinct()
 
 #pull unique course ids
-unique_course_ids <- result %>%
+unique_course_ids <- dfABE_Uiteindelijk %>%
   pull(id) %>%
   unique
 
