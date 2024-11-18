@@ -108,6 +108,7 @@ dfRooster_summarized %>% tabyl(excursie_overeen)
 dfRooster_summarized %>% tabyl(werkcollege_overeen)
 dfRooster_summarized %>% tabyl(practicum_overeen)
 
-
-
 dfRooster %>% tabyl(ROO_Type_activiteit)
+
+vusa::write_file(dfRooster_summarized, "ABE_P_Roostering", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+

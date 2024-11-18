@@ -39,3 +39,6 @@ dfFiles_summarized_2 <- dfFiles_summarized  %>%
 
 
 dfFiles_summarized_2 %>% tabyl(gelijk_onderzoek)
+
+vusa::write_file(dfFiles_summarized_2, "ABE_Powerpoint", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+

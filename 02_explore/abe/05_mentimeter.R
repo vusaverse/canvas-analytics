@@ -83,3 +83,9 @@ dfABE_Uiteindelijk_flipped_classroom <- dfABE_Uiteindelijk %>%
   )
 
 dfABE_Uiteindelijk_flipped_classroom %>% tabyl(gelijk_onderzoek_flipped_classroom)
+
+vusa::write_file(dfABE_Uiteindelijk_mentimeter, "ABE_Mentimeter", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+vusa::write_file(dfABE_Uiteindelijk_flipped_classroom, "ABE_Flipped_classroom", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+
+
+

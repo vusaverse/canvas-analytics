@@ -38,3 +38,5 @@ dfDiscussions2 <- dfDiscussions %>%
   dplyr::filter(!is.na(Discussionboard))
 
 dfDiscussions2 %>% tabyl(gelijk_onderzoek)
+
+vusa::write_file(dfDiscussions2, "ABE_Discussions", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)

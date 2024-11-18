@@ -66,3 +66,7 @@ dfTestTeachersTa <- dfEnrolments_summarized_role %>%
          verschil_onderzoek = NoTeachers - teacher_and_TA)
 
 tabyl(dfTestTeachersTa$gelijk_onderzoek)
+
+vusa::write_file(dfTest, "ABE_Studenten", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+vusa::write_file(dfTestTeachers, "ABE_Teachers", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+vusa::write_file(dfTestTeachersTa, "ABE_TeachersTa", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)

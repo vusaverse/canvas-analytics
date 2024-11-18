@@ -51,3 +51,6 @@ dfQuizzes %>% tabyl(quiz_type)
 dfQuizzes %>% tabyl(published)
 
 dfQuizzes %>% glimpse
+
+vusa::write_file(dfQuizzes, "ABE_Online_quizzes", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+

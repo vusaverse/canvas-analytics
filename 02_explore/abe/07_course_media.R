@@ -129,3 +129,6 @@ dfABE_kennisclips <- dfABE_Uiteindelijk %>%
 tabyl(dfABE_kennisclips$gelijk_kennisclips)
 tabyl(dfABE_kennisclips$verschil_kennisclips)
 
+
+vusa::write_file(dfABE_Uiteindelijk_online, "ABE_Opgenomen_colleges", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+vusa::write_file(dfABE_kennisclips, "ABE_Kennisclips", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
