@@ -39,3 +39,75 @@ dfABE_Uiteindelijk_filtered <- dfABE_Uiteindelijk %>%
 
 tabyl(dfABE_Uiteindelijk_filtered$gelijk_onderzoek)
 
+
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##' Use schedule data from outside Canvas
+##'
+
+
+dfRooster <- readrds_csv(output = "20. Test/TermTime_historic.rds")
+
+dfRooster_2019 <- dfRooster %>%
+  dplyr::filter(ROO_Modulecode %in% Check_courses)
+
+
+setdiff(Check_courses, dfRooster_2019$ROO_Modulecode)
+
+dfVakas_breed <- readrds_csv(output = "3. Analyseset/Vakken_Analyseset_breed_na_stap_1.rds")
+
+
+
+dfVakas_filtered <- dfVakas_breed %>%
+  dplyr::filter(UAS_Vak_Code %in% Check_courses,
+                UAS_Vak_Jaar %in% c(2019, 2022, 2023)) %>%
+  select(UAS_Vak_Code, UAS_Vak_Jaar)
+
+dfABE_Uiteindelijk <- dfABE_Uiteindelijk %>%
+  mutate(INS_Inschrijvingsjaar = case_when(AcademicYear == 1 ~ 2019,
+                                           AcademicYear == 2 ~ 2022,
+                                           AcademicYear == 3 ~ 2023,
+                                           FALSE ~ TRUE)) %>%
+  ## in CourseName change value R_Ebel into R_EBel
+  mutate(CourseName = str_replace_all(CourseName, "R_Ebel", "R_EBel")) %>%
+  left_join(dfVakas_filtered, by = c("CourseName" = "UAS_Vak_Code",
+                                     "INS_Inschrijvingsjaar" = "UAS_Vak_Jaar"))
+
+dfRooster_summarizes <- dfRooster_2019 %>%
+  distinct() %>%
+  count(academic_year,  ROO_Modulecode, ROO_Type_activiteit) %>%
+  pivot_wider(
+    names_from = ROO_Type_activiteit,
+    values_from = n,
+    values_fill = 0
+  ) %>%
+  mutate(Total = rowSums(select(., -academic_year, -ROO_Modulecode)))
+
+
+
+dfABE_Uiteindelijk_roostering <- dfABE_Uiteindelijk %>%
+  dplyr::filter(AcademicYear == 1) %>%
+  select(coursenumber, CourseName, AcademicYear, StudyYear, starts_with("P"), MeetingsTotal) %>%
+  select(-Powerpoints )
+
+dfRooster_summarized <- dfABE_Uiteindelijk_roostering %>%
+  left_join(dfRooster_summarizes, by = c(
+    "CourseName" = "ROO_Modulecode"
+  )) %>%
+  select(coursenumber, CourseName, AcademicYear, StudyYear, MeetingsTotal, Total, Hoorcollege, Werkcollege, Excursie, Practicum, PNA1, PA1, PA2, PA6) %>%
+  mutate(gelijk = MeetingsTotal == Total,
+         colleges_overeen = Hoorcollege == PNA1,
+         verschil = Hoorcollege - PNA1,
+         werkcollege_overeen = Werkcollege == PA1,
+         practicum_overeen = Practicum == PA2,
+         excursie_overeen = Excursie == PA6)
+
+dfRooster_summarized %>% tabyl(gelijk)
+dfRooster_summarized %>% tabyl(colleges_overeen)
+dfRooster_summarized %>% tabyl(excursie_overeen)
+dfRooster_summarized %>% tabyl(werkcollege_overeen)
+dfRooster_summarized %>% tabyl(practicum_overeen)
+
+
+
+dfRooster %>% tabyl(ROO_Type_activiteit)
