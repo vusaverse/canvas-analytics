@@ -33,6 +33,72 @@ dfCoursemedia_filtered_kennisclips <- dfCoursemedia %>%
   distinct(course_id, .keep_all = TRUE) %>%
   mutate(has_kennisclip_opname = TRUE)
 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## X. Kennisclips shared in youtube and vimeo links ####
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+source("02_explore/course_announcement.R")
+source("02_explore/course_pages.R")
+source("02_explore/course_ppt_content.R")
+source("02_explore/course_pdf_content.R")
+
+dfAnnouncements_selected <- dfAnnouncements %>%
+  select(course_id, message) %>%
+  rename(text_content = message)
+
+dfPages_selected <- dfPages %>%
+  select(course_id, page_body) %>%
+  rename(text_content = page_body)
+
+
+dfPPT_selected <- dfPPT %>%
+  select(course_id, extracted_text) %>%
+  rename(text_content = extracted_text)
+
+
+dfPDF_selected <- dfPDF %>%
+  select(course_id, extracted_text) %>%
+  rename(text_content = extracted_text)
+
+
+# Step 2: Bind the rows of the three dataframes
+## TODO: join read and bind PDF data as well
+dfCombined <- bind_rows(
+  dfAnnouncements_selected,
+  dfPages_selected,
+  dfPPT_selected,
+  dfPDF_selected
+)
+
+# Define regex patterns for YouTube and Vimeo
+youtube_regex <- "\\b(?:https?:\\/\\/)?(?:www\\.)?(?:youtube\\.com\\/(?:watch\\?v=|embed\\/|v\\/|live\\/|user\\/|c\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})\\b"
+vimeo_regex <- "\\b(?:https?:\\/\\/)?(?:www\\.)?(?:vimeo\\.com\\/(?:[0-9]+|channels\\/[A-Za-z0-9_-]+\\/[0-9]+|groups\\/[A-Za-z0-9_-]+\\/videos\\/[0-9]+|album\\/[0-9]+\\/video\\/[0-9]+)|player\\.vimeo\\.com\\/video\\/[0-9]+)\\b"
+
+# Combine YouTube and Vimeo regex patterns
+video_regex <- paste(youtube_regex, vimeo_regex, sep="|")
+
+# Check for video links in text_content
+dfVideoLinks <- dfCombined %>%
+  dplyr::filter(course_id %in% unique_course_ids) %>%
+  mutate(contains_video_link = str_detect(text_content,
+                                          regex(video_regex,
+                                                ignore_case = TRUE)))
+
+# Count occurrences by course_id
+video_links_count <- dfVideoLinks %>%
+  group_by(course_id) %>%
+  summarise(video_links_mentions = sum(as.integer(contains_video_link), na.rm = TRUE))
+
+# we need to update the table dfCoursemedia_filtered_kennisclips
+dfCoursemedia_filtered_kennisclips_with_links <- dfCoursemedia_filtered_kennisclips %>%
+  full_join(video_links_count, by = c("course_id" = "course_id")) %>%
+  mutate(has_kennisclip_opname = ifelse((video_links_mentions > 0) | (count_course_kennisclip_id > 0) , TRUE, FALSE),
+         has_kennisclip_opname = ifelse(is.na(has_kennisclip_opname), FALSE, TRUE))
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## X. Check research data ####
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## TODO: Perform assertion tests
 
 dfABE_Uiteindelijk_online <-  dfABE_Uiteindelijk %>%
   select(coursenumber, CourseName, AcademicYear, Collegesopgenomen, id) %>%
