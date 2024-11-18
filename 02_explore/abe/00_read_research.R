@@ -18,7 +18,8 @@ dfCourses <- read_file_proj("CAN_Course_details")
 
 #change numeric data to year format, normalize Coursename
 dfABE_Uiteindelijk <- dfABE_Uiteindelijk %>%
-  mutate(INS_Inschrijvingsjaar = case_when(AcademicYear == 1 ~ 2019,
+  sjlabelled::remove_all_labels() %>%
+  dplyr::mutate(INS_Inschrijvingsjaar = case_when(AcademicYear == 1 ~ 2019,
                                            AcademicYear == 2 ~ 2022,
                                            AcademicYear == 3 ~ 2023,
                                            FALSE ~ TRUE),

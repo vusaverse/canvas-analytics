@@ -49,7 +49,8 @@ dfMentimeter <- dfCombined %>%
   dplyr::filter(course_id %in% unique_course_ids) %>%
   # mutate(contains_mentimeter = str_detect(text_content, regex("mentimeter", ignore_case = TRUE))) #%>%
   # mutate(contains_mentimeter = str_detect(text_content, regex("mentimeter|menti.com", ignore_case = TRUE)))
-  mutate(contains_mentimeter = str_detect(text_content, regex("menti.com", ignore_case = TRUE)))
+  mutate(contains_mentimeter = str_detect(text_content, regex("menti.com", ignore_case = TRUE)),
+          contains_flipped = str_detect(text_content, regex("flipped classroom", ignore_case = TRUE)))
 
 # Step 4: Count occurrences by course_id
 mentimeter_count <- dfMentimeter %>%
@@ -62,9 +63,23 @@ dfABE_Uiteindelijk_mentimeter <- dfABE_Uiteindelijk %>%
   left_join(mentimeter_count, by = c("id" = "course_id")) %>%
   mutate(
     has_mentimeter = mentimeter_mentions  >  0,
-    metimeter_bool = Mentimeter == 1,  # Convert powerpoints to boolean
-    gelijk_onderzoek = has_mentimeter == metimeter_bool  # Compare has_ppt with powerpoints_bool
+    mentimeter_bool = Mentimeter == 1,  # Convert powerpoints to boolean
+    gelijk_onderzoek_mentimeter = has_mentimeter == mentimeter_bool  # Compare has_ppt with powerpoints_bool
   )
 
+dfABE_Uiteindelijk_mentimeter %>% tabyl(gelijk_onderzoek_mentimeter)
 
-dfABE_Uiteindelijk_mentimeter %>% tabyl(gelijk_onderzoek)
+flipped_classroom_count <- dfMentimeter %>%
+  group_by(course_id) %>%
+  summarize(flipped_classroom_mentions = sum(as.integer(contains_flipped), na.rm = TRUE))
+
+dfABE_Uiteindelijk_flipped_classroom <- dfABE_Uiteindelijk %>%
+  select(id, coursenumber, CourseName, AcademicYear,Flipped) %>%
+  left_join(flipped_classroom_count, by = c("id" = "course_id")) %>%
+  mutate(
+    has_flipped_classroom = flipped_classroom_mentions > 0,
+    flipped_classroom_bool = Flipped == 1,
+    gelijk_onderzoek_flipped_classroom = has_flipped_classroom == flipped_classroom_bool
+  )
+
+dfABE_Uiteindelijk_flipped_classroom %>% tabyl(gelijk_onderzoek_flipped_classroom)
