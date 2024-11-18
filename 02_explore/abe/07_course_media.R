@@ -95,6 +95,8 @@ dfCoursemedia_filtered_kennisclips_with_links <- dfCoursemedia_filtered_kenniscl
   mutate(has_kennisclip_opname = ifelse((video_links_mentions > 0) | (count_course_kennisclip_id > 0) , TRUE, FALSE),
          has_kennisclip_opname = ifelse(is.na(has_kennisclip_opname), FALSE, TRUE))
 
+
+
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## X. Check research data ####
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -117,4 +119,13 @@ dfABE_Uiteindelijk_online <-  dfABE_Uiteindelijk %>%
 
 tabyl(dfABE_Uiteindelijk_online$gelijk_onderzoek_college)
 tabyl(dfABE_Uiteindelijk_online$gelijk_onderzoek_kennisclip)
+
+dfABE_kennisclips <- dfABE_Uiteindelijk %>%
+  dplyr::select(id, Kennisclips) %>%
+  dplyr::left_join(dfCoursemedia_filtered_kennisclips_with_links, by = c("id" = "course_id")) %>%
+  mutate(gelijk_kennisclips = Kennisclips == count_course_kennisclip_id,
+         verschil_kennisclips = Kennisclips - count_course_kennisclip_id)
+
+tabyl(dfABE_kennisclips$gelijk_kennisclips)
+tabyl(dfABE_kennisclips$verschil_kennisclips)
 
