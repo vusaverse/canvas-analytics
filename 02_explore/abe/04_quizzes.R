@@ -19,7 +19,11 @@ dfQuizzes_filtered <- dfQuizzes %>%
   dplyr::filter(course_id %in% unique_course_ids,
                 !is.na(id),
                 ##' *to do* filter out more unwated quiz_types
-                quiz_type != "survey") %>%
+                # published,
+                # locked_for_user,
+                !is.na(quiz_type),
+                question_count > 1,
+                quiz_type %notin% c("survey", "graded_survey")) %>%
   select(course_id) %>%
   mutate(has_quiz = TRUE) %>%
   distinct(course_id, .keep_all = TRUE)
@@ -36,6 +40,14 @@ dfABE_Uiteindelijk_quizzes <- dfABE_Uiteindelijk %>%
          gelijk_onderzoek = OnlineQuizzes == has_quiz)
 
 tabyl(dfABE_Uiteindelijk_quizzes$gelijk_onderzoek)
+# |> tabyl(dfABE_Uiteindelijk_quizzes$gelijk_onderzoek)
+#  dfABE_Uiteindelijk_quizzes$gelijk_onderzoek   n     percent valid_percent
+#                                        FALSE  55 0.156250000     0.1571429
+#                                         TRUE 295 0.838068182     0.8428571
+#                                           NA   2 0.005681818            NA
 tabyl(dfABE_Uiteindelijk_quizzes$has_quiz)
 
-view(dfABE_Uiteindelijk_quizzes$gelijk_onderzoek)
+dfQuizzes %>% tabyl(quiz_type)
+dfQuizzes %>% tabyl(published)
+
+dfQuizzes %>% glimpse

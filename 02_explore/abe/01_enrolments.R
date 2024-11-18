@@ -16,7 +16,8 @@ dfEnrolments <- read_file_proj("CAN_Enrolments")
 df_Enrolments_filtered <- dfEnrolments %>%
   distinct(course_id, user_id, .keep_all=TRUE) %>%
   dplyr::filter(course_id %in% unique_course_ids) %>%
-  dplyr::filter(enrollment_state == "active")
+  dplyr::filter(enrollment_state == "active",
+                user.short_name != "Test student")
 
 dfEnrolments_summarized_role <- df_Enrolments_filtered %>%
   distinct() %>%
@@ -39,8 +40,8 @@ dfEnrolments_summarized_type <- df_Enrolments_filtered %>%
   mutate(total = rowSums(select(., -course_id)))
 
 dfTest <- dfEnrolments_summarized_type %>%
-  left_join(result, c("course_id" = "id")) %>%
-  select(CourseName, INS_Inschrijvingsjaar, NoStudents, StudentEnrollment, course_id) %>%
+  dplyr::left_join(dfABE_Uiteindelijk, by = c("course_id" = "id")) %>%
+  select(course_id, CourseName, INS_Inschrijvingsjaar, NoStudents, StudentEnrollment, course_id) %>%
   dplyr::filter(!is.na(NoStudents)) %>%
   mutate(gelijk_onderzoek = NoStudents == StudentEnrollment,
          verschil_onderzoek = NoStudents - StudentEnrollment)
@@ -48,7 +49,7 @@ dfTest <- dfEnrolments_summarized_type %>%
 tabyl(dfTest$gelijk_onderzoek)
 
 dfTestTeachers <- dfEnrolments_summarized_role %>%
-  left_join(result, c("course_id" = "id")) %>%
+  left_join(dfABE_Uiteindelijk, c("course_id" = "id")) %>%
   select(CourseName, INS_Inschrijvingsjaar, NoTeachers, TeacherEnrollment, course_id) %>%
   dplyr::filter(!is.na(NoTeachers)) %>%
   mutate(gelijk_onderzoek = NoTeachers == TeacherEnrollment,
@@ -57,7 +58,7 @@ dfTestTeachers <- dfEnrolments_summarized_role %>%
 tabyl(dfTestTeachers$gelijk_onderzoek)
 
 dfTestTeachersTa <- dfEnrolments_summarized_role %>%
-  left_join(result, c("course_id" = "id")) %>%
+  left_join(dfABE_Uiteindelijk, c("course_id" = "id")) %>%
   select(CourseName, INS_Inschrijvingsjaar, NoTeachers, TeacherEnrollment, Coordinator, TaEnrollment, `TA No Grading`, course_id) %>%
   dplyr::filter(!is.na(NoTeachers)) %>%
   mutate(teacher_and_TA = TeacherEnrollment + Coordinator + TaEnrollment + `TA No Grading`) %>%
