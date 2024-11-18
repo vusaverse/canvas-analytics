@@ -103,8 +103,7 @@ process_ppt_files <- function(df, batch_size = 50, num_workers = 4) {
   plan(multisession, workers = num_workers)
 
   url_table <- df %>%
-    dplyr::filter(grepl("\\.pptx$", ignore.case = TRUE,  filename)) %>%
-    sample_n(50000)
+    dplyr::filter(grepl("\\.pptx$", ignore.case = TRUE,  filename))
 
   total_files <- nrow(url_table)
   cat("Total files to process:", total_files, "\n")
