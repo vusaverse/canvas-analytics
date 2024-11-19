@@ -114,6 +114,8 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
   plan(multisession, workers = num_workers)
 
   url_table <- df %>%
+    sample_n(1000) %>%
+    dplyr::filter(size < 200000) %>%
     dplyr::filter(grepl("\\.pdf$", ignore.case = TRUE, filename))
 
   total_files <- nrow(url_table)
@@ -173,10 +175,10 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
 
 # Process the files
 result_table <- process_pdf_files(df,
-                                  batch_size = 100,
+                                  batch_size = 5,
                                   num_workers = parallel::detectCores() - 1,
-                                  pdf_timeout = 600,
-                                  batch_timeout = 1200)
+                                  pdf_timeout = 60,
+                                  batch_timeout = 60)
 
 # Post-process results
 final_table <- result_table %>%
@@ -185,12 +187,6 @@ final_table <- result_table %>%
   dplyr::filter(!is.na(extracted_text)) %>%
   select(-extraction_result) %>%
   bind_rows(dfPDF_filled)
-
-# Print summary
-cat("Total files processed:", nrow(final_table), "\n")
-cat("Successful extractions:", sum(!is.na(final_table$extracted_text)), "\n")
-cat("Failed extractions:", sum(is.na(final_table$extracted_text)), "\n")
-
 
 prepare_and_send_summary(final_table,
                          dfPDF_filled,
@@ -203,3 +199,4 @@ prepare_and_send_summary(final_table,
 write_file_proj(final_table, "CAN_PDF_text")
 
 clear_script_objects()
+clear_global_proj()
