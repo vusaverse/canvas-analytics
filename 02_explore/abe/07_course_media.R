@@ -10,9 +10,7 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# dfCoursemedia <- read_file_proj("CAN_Media_with_length")
-dfCoursemedia <- dfMedia_mutated
-
+dfCoursemedia <- read_file_proj("CAN_Media_with_length")
 
 #filteren op echt college, video van minimaal 40 min, een kennisclip is korter dan 40 minuten
 dfCoursemedia_filtered_colleges <- dfCoursemedia %>%
