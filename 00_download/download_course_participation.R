@@ -99,7 +99,3 @@ prepare_and_send_summary(dfCourse_participation,
 write_file_proj(dfCourse_participation, "CAN_Course_participation")
 
 clear_script_objects()
-
-
-cat("finished, now student summaries")
-source("00_download/download_course_student_summaries.R")
