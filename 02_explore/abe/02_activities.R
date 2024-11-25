@@ -95,12 +95,17 @@ dfRooster_summarized <- dfABE_Uiteindelijk_roostering %>%
     "CourseName" = "ROO_Modulecode"
   )) %>%
   select(coursenumber, CourseName, AcademicYear, StudyYear, MeetingsTotal, Total, Hoorcollege, Werkcollege, Excursie, Practicum, PNA1, PA1, PA2, PA6) %>%
-  mutate(gelijk = MeetingsTotal == Total,
+  mutate(gelijk_totaal_aantal_meetings =  Total == MeetingsTotal,
+         verschil_totaal_aantal_meetings = Total - MeetingsTotal,
          colleges_overeen = Hoorcollege == PNA1,
-         verschil = Hoorcollege - PNA1,
+         verschil_hoorcolleges = Hoorcollege - PNA1,
          werkcollege_overeen = Werkcollege == PA1,
+         Verschil_werkcolleges = Werkcollege - PA1,
          practicum_overeen = Practicum == PA2,
-         excursie_overeen = Excursie == PA6)
+         Verschil_practicum = Practicum - PA2,
+         excursie_overeen = Excursie == PA6,
+         Verschil_excursie = Excursie - PA6)
+
 
 dfRooster_summarized %>% tabyl(gelijk)
 dfRooster_summarized %>% tabyl(colleges_overeen)
