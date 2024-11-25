@@ -49,9 +49,9 @@ dfMentimeter <- dfCombined %>%
   dplyr::filter(course_id %in% unique_course_ids) %>%
   # mutate(contains_mentimeter = str_detect(text_content, regex("mentimeter", ignore_case = TRUE))) #%>%
   # mutate(contains_mentimeter = str_detect(text_content, regex("mentimeter|menti.com", ignore_case = TRUE)))
-  mutate(contains_mentimeter = str_detect(text_content, regex("menti.com", ignore_case = TRUE)),
+  mutate(contains_mentimeter = str_detect(text_content, regex("mentimeter|menti.com", ignore_case = TRUE)),
           contains_flipped = str_detect(text_content, regex("flipped classroom", ignore_case = TRUE)),
-          contains_ebook = str_detect(text_content, regex("\\b(e-book|ebook)\\b", ignore_case = TRUE)))
+          contains_ebook = str_detect(text_content, regex("\\b(e[- ]?(book|module))\\b|\\bemodule\\b", ignore_case = TRUE)))
 
 # Step 4: Count occurrences by course_id
 mentimeter_count <- dfMentimeter %>%
