@@ -114,8 +114,7 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
   plan(multisession, workers = num_workers)
 
   url_table <- df %>%
-    sample_n(1000) %>%
-    dplyr::filter(size < 200000) %>%
+    sample_n(100) %>%
     dplyr::filter(grepl("\\.pdf$", ignore.case = TRUE, filename))
 
   total_files <- nrow(url_table)
@@ -162,7 +161,7 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
     # Exit the loop if a timeout or error occurred
     if (any(sapply(batch_result$extraction_result, function(x) !is.null(x$error)))) {
       cat("Exiting process due to timeout or error.\n")
-      break
+      next
     }
   }
 
@@ -175,7 +174,7 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
 
 # Process the files
 result_table <- process_pdf_files(df,
-                                  batch_size = 5,
+                                  batch_size = 100,
                                   num_workers = parallel::detectCores() - 1,
                                   pdf_timeout = 60,
                                   batch_timeout = 60)
@@ -200,3 +199,5 @@ write_file_proj(final_table, "CAN_PDF_text")
 
 clear_script_objects()
 clear_global_proj()
+gc()
+source("00_download/download_pdf_text.R")
