@@ -114,7 +114,7 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
   plan(multisession, workers = num_workers)
 
   url_table <- df %>%
-    sample_n(100) %>%
+    sample_n(10000) %>%
     dplyr::filter(grepl("\\.pdf$", ignore.case = TRUE, filename))
 
   total_files <- nrow(url_table)
@@ -176,8 +176,8 @@ process_pdf_files <- function(df, batch_size = 50, num_workers = 4, pdf_timeout 
 result_table <- process_pdf_files(df,
                                   batch_size = 100,
                                   num_workers = parallel::detectCores() - 1,
-                                  pdf_timeout = 60,
-                                  batch_timeout = 60)
+                                  pdf_timeout = 300,
+                                  batch_timeout = 300)
 
 # Post-process results
 final_table <- result_table %>%
