@@ -69,11 +69,17 @@ dfCombined <- bind_rows(
 )
 
 # Define regex patterns for YouTube and Vimeo
-youtube_regex <- "\\b(?:https?:\\/\\/)?(?:www\\.)?(?:youtube\\.com\\/(?:watch\\?v=|embed\\/|v\\/|live\\/|user\\/|c\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})\\b"
-vimeo_regex <- "\\b(?:https?:\\/\\/)?(?:www\\.)?(?:vimeo\\.com\\/(?:[0-9]+|channels\\/[A-Za-z0-9_-]+\\/[0-9]+|groups\\/[A-Za-z0-9_-]+\\/videos\\/[0-9]+|album\\/[0-9]+\\/video\\/[0-9]+)|player\\.vimeo\\.com\\/video\\/[0-9]+)\\b"
+# youtube_regex <- "\\b(?:https?:\\/\\/)?(?:www\\.)?(?:youtube\\.com\\/(?:watch\\?v=|embed\\/|v\\/|live\\/|user\\/|c\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})\\b"
+youtube_regex <- "(https?:\\/\\/)?(www\\.)?(youtube\\.com\\/(watch\\?v=|embed\\/|v\\/|live\\/|user\\/|c\\/|shorts\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})"
+# vimeo_regex <- "\\b(?:https?:\\/\\/)?(?:www\\.)?(?:vimeo\\.com\\/(?:[0-9]+|channels\\/[A-Za-z0-9_-]+\\/[0-9]+|groups\\/[A-Za-z0-9_-]+\\/videos\\/[0-9]+|album\\/[0-9]+\\/video\\/[0-9]+)|player\\.vimeo\\.com\\/video\\/[0-9]+)\\b"
+vimeo_regex <- "(https?:\\/\\/)?(www\\.)?(vimeo\\.com\\/(\\d+|channels\\/[A-Za-z0-9_-]+\\/\\d+|groups\\/[A-Za-z0-9_-]+\\/videos\\/\\d+|album\\/\\d+\\/video\\/\\d+)|player\\.vimeo\\.com\\/video\\/\\d+)"
+video_vu_regex <- "(https?:\\/\\/)?(www\\.)?videos\\.vu\\.nl(\\/[-A-Za-z0-9@:%_\\+.~#?&//=]*)?"
+kaltura_regex <- "(?i)\\bKaltura\\b"
 
 # Combine YouTube and Vimeo regex patterns
 video_regex <- paste(youtube_regex, vimeo_regex, sep="|")
+video_regex <- paste(video_regex, video_vu_regex, sep="|")
+video_regex <- paste(kaltura_regex, video_vu_regex, sep="|")
 
 # Check for video links in text_content
 dfVideoLinks <- dfCombined %>%
@@ -93,7 +99,7 @@ dfCoursemedia_filtered_kennisclips_with_links <- dfCoursemedia_filtered_kenniscl
   mutate(has_kennisclip_opname = ifelse((video_links_mentions > 0) | (count_course_kennisclip_id > 0) , TRUE, FALSE),
          has_kennisclip_opname = ifelse(is.na(has_kennisclip_opname), FALSE, TRUE))
 
-
+tabyl(dfCoursemedia_filtered_kennisclips_with_links$has_kennisclip_opname)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## X. Check research data ####
@@ -118,15 +124,37 @@ dfABE_Uiteindelijk_online <-  dfABE_Uiteindelijk %>%
 tabyl(dfABE_Uiteindelijk_online$gelijk_onderzoek_college)
 tabyl(dfABE_Uiteindelijk_online$gelijk_onderzoek_kennisclip)
 
+
+
+##' Kennisclips en asynch controleren met onze tellingen: Tellingen maken, aan de linkerkant ABE data en aan de rechterkant onze data
+
 dfABE_kennisclips <- dfABE_Uiteindelijk %>%
   dplyr::select(id, Kennisclips) %>%
   dplyr::left_join(dfCoursemedia_filtered_kennisclips_with_links, by = c("id" = "course_id")) %>%
-  mutate(gelijk_kennisclips = Kennisclips == count_course_kennisclip_id,
-         verschil_kennisclips = Kennisclips - count_course_kennisclip_id)
+  mutate(verschil_kennisclips = Kennisclips - count_course_kennisclip_id,
+         overeenkomsten_kennisclips = Kennisclips == count_course_kennisclip_id,
+         overeenkomsten_kennisclips = ifelse(is.na(overeenkomsten_kennisclips), FALSE, overeenkomsten_kennisclips))
 
-tabyl(dfABE_kennisclips$gelijk_kennisclips)
+tabyl(dfABE_kennisclips$overeenkomsten_kennisclips)
 tabyl(dfABE_kennisclips$verschil_kennisclips)
+
+dfABE_Asynch <- dfABE_Uiteindelijk %>%
+  select(coursenumber, CourseName, AcademicYear, Asynch, id) %>%
+  mutate(INS_Inschrijvingsjaar = case_when(AcademicYear == 1 ~ 2019,
+                                           AcademicYear == 2 ~ 2020,
+                                           AcademicYear == 3 ~ 2021,
+                                           FALSE ~ TRUE)
+  ) %>%
+  left_join(dfCoursemedia_filtered_colleges, by = c("id" = "course_id")) %>%
+  mutate(verschil_asynch = Asynch - count_course_id,
+          overeenkomsten_asynch = Asynch == count_course_id,
+         overeenkomsten_asynch = ifelse(is.na(overeenkomsten_asynch), FALSE, overeenkomsten_asynch)) %>%
+  select(-has_college_opname)
+
+tabyl(dfABE_Asynch$overeenkomsten_asynch)
+tabyl(dfABE_Asynch$verschil_asynch)
 
 
 vusa::write_file(dfABE_Uiteindelijk_online, "ABE_Opgenomen_colleges", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
 vusa::write_file(dfABE_kennisclips, "ABE_Kennisclips", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
+vusa::write_file(dfABE_Asynch, "ABE_Asynch", destination = "20. Test/", save_rds = TRUE, save_csv = TRUE)
