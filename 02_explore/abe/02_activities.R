@@ -57,7 +57,6 @@ setdiff(Check_courses, dfRooster_2019$ROO_Modulecode)
 dfVakas_breed <- readrds_csv(output = "3. Analyseset/Vakken_Analyseset_breed_na_stap_1.rds")
 
 
-
 dfVakas_filtered <- dfVakas_breed %>%
   dplyr::filter(UAS_Vak_Code %in% Check_courses,
                 UAS_Vak_Jaar %in% c(2019, 2022, 2023)) %>%
@@ -83,16 +82,15 @@ dfRooster_summarizes <- dfRooster_2019 %>%
   ) %>%
   mutate(Total = rowSums(select(., -academic_year, -ROO_Modulecode)))
 
-
-
 dfABE_Uiteindelijk_roostering <- dfABE_Uiteindelijk %>%
-  dplyr::filter(AcademicYear == 1) %>%
-  select(coursenumber, CourseName, AcademicYear, StudyYear, starts_with("P"), MeetingsTotal) %>%
+  # dplyr::filter(AcademicYear == 1) %>%
+  select(coursenumber, CourseName, AcademicYear, StudyYear, starts_with("P"), MeetingsTotal, INS_Inschrijvingsjaar) %>%
   select(-Powerpoints )
 
 dfRooster_summarized <- dfABE_Uiteindelijk_roostering %>%
   left_join(dfRooster_summarizes, by = c(
-    "CourseName" = "ROO_Modulecode"
+    "CourseName" = "ROO_Modulecode",
+    "INS_Inschrijvingsjaar" = "academic_year"
   )) %>%
   select(coursenumber, CourseName, AcademicYear, StudyYear, MeetingsTotal, Total, Hoorcollege, Werkcollege, Excursie, Practicum, PNA1, PA1, PA2, PA6) %>%
   mutate(gelijk_totaal_aantal_meetings =  Total == MeetingsTotal,
@@ -104,14 +102,19 @@ dfRooster_summarized <- dfABE_Uiteindelijk_roostering %>%
          practicum_overeen = Practicum == PA2,
          Verschil_practicum = Practicum - PA2,
          excursie_overeen = Excursie == PA6,
-         Verschil_excursie = Excursie - PA6)
+         Verschil_excursie = Excursie - PA6,
+         AcademicYear = case_when(AcademicYear == 1 ~ 2019,
+                                           AcademicYear == 2 ~ 2022,
+                                           AcademicYear == 3 ~ 2023,
+                                           FALSE ~ TRUE))
 
 
-dfRooster_summarized %>% tabyl(gelijk)
+dfRooster_summarized %>% tabyl(gelijk_totaal_aantal_meetings)
 dfRooster_summarized %>% tabyl(colleges_overeen)
 dfRooster_summarized %>% tabyl(excursie_overeen)
 dfRooster_summarized %>% tabyl(werkcollege_overeen)
 dfRooster_summarized %>% tabyl(practicum_overeen)
+dfRooster_summarized %>% tabyl(AcademicYear)
 
 dfRooster %>% tabyl(ROO_Type_activiteit)
 
