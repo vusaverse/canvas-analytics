@@ -40,11 +40,11 @@ dfEnrolments_information_part <- dfEnrolments_information %>%
 
 dfCourse_details <- read_file_proj("CAN_Course_details")
 
-dfCourses <- read_file_proj("CAN_Index")
+dfCourses <- read_file_proj("CAN_Index2")
 
 
 dfCourse_information <- dfCourse_details %>%
-  dplyr::left_join(dfCourses, by = c("id" = "course.id"))
+  dplyr::left_join(dfCourses, by = intersect(names(dfCourse_details), names(dfCourses)))
 
 
 
